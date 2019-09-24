@@ -1,7 +1,7 @@
 # Modules
 Modules used by other projects
 
-Java library for usefull modules.
+Java library for useful modules.
 
 ### Planned
 - io : Common IO related methods
