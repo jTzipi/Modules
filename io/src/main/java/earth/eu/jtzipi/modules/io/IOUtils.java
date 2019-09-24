@@ -56,13 +56,13 @@ public final class IOUtils {
 
         int exp = (int) (Math.log(bytes) / Math.log(unit));
 
+        double ri = bytes / Math.pow(unit, exp + 1);
         LOG.warn( "formatiere " + bytes + " " + exp );
 
-        String pre = unitSymbol.charAt(exp - 1) +  ( si ? "" : "i" );
-        return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
+        String pre = unitSymbol.charAt(exp) +  ( si ? "" : "i" );
+        return String.format("%.1f %sB", ri, pre);
     }
-
-
+    
     public static String getFileName( final Path path ) {
         Objects.requireNonNull( path );
         return FSV.getSystemDisplayName( path.toFile() );

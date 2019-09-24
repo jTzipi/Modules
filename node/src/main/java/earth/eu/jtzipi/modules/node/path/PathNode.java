@@ -23,8 +23,7 @@ import java.util.stream.Collectors;
  */
 public class PathNode implements IPathNode, Comparable<IPathNode> {
 
-
-
+    /** Default comparator. */
     static final Comparator<IPathNode> COMP = Comparator.comparing(IPathNode::isDir).thenComparing( IPathNode::isReadable ).thenComparing( IPathNode::getName );
     private static final Logger LOG = LoggerFactory.getLogger( "");
     /** parent node. If null root. */
