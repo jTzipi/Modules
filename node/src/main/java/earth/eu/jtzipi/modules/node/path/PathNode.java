@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2019 Tim Langhammer
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
+
 package earth.eu.jtzipi.modules.node.path;
 
 
@@ -9,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.text.Collator;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -23,16 +40,23 @@ import java.util.stream.Collectors;
  */
 public class PathNode implements IPathNode, Comparable<IPathNode> {
 
+    private static final Logger LOG = LoggerFactory.getLogger( "PathNode" );
+    private static final Collator COL = Collator.getInstance();
     /** Default comparator. */
-    static final Comparator<IPathNode> COMP = Comparator.comparing(IPathNode::isDir).thenComparing( IPathNode::isReadable ).thenComparing( IPathNode::getName );
-    private static final Logger LOG = LoggerFactory.getLogger( "");
-    /** parent node. If null root. */
-    IPathNode parent;
-    /** path to this node. */
-    Path path;
-    /** sub nodes.*/
-    List<? extends IPathNode> subNodeL;
+    private static final Comparator<IPathNode> COMP = Comparator.comparing(IPathNode::isDir).thenComparing( IPathNode::isReadable ).thenComparing( ( pn, pn2 ) -> COL.compare( pn.getName(), pn2.getName()  ) ).reversed();
+    /** Description.*/
     String desc;
+    /** parent node. If null root. */
+    private IPathNode parent;
+    /** path to this node. */
+    private Path path;
+
+    //
+    // Properties
+    //
+    /** sub nodes.*/
+    private List<? extends IPathNode> subNodeL;
+
     String type;
     long length;
     int depth;
@@ -42,6 +66,7 @@ public class PathNode implements IPathNode, Comparable<IPathNode> {
     /** Indicator for subnodes created */
     boolean subNodesCreated;
     private String name;
+
     /**
      * PathNode main.
      * @param path
@@ -81,14 +106,10 @@ public class PathNode implements IPathNode, Comparable<IPathNode> {
             this.type = "<Unknown>";
         }
         this.readable = Files.isReadable(path);
-
         this.subNodesCreated = false;
-        this.name = IOUtils.getFileName( path );
-        this.desc = IOUtils.getFileDescription( path );
+        this.name = IOUtils.getPathDisplayName( path );
+        this.desc = IOUtils.getPathTypeDescription( path );
         this.depth = path.getNameCount();
-
-
-
     }
 
     @Override
@@ -129,7 +150,7 @@ public class PathNode implements IPathNode, Comparable<IPathNode> {
 
     @Override
     public String getType() {
-        return desc;
+        return type;
     }
 
     @Override
@@ -149,6 +170,7 @@ public class PathNode implements IPathNode, Comparable<IPathNode> {
         if(!isDir()) {
             return Collections.emptyList();
         }
+        Objects.requireNonNull( pp );
         // if not created
         if( !subNodesCreated ) {
 
