@@ -16,18 +16,18 @@
 
 package earth.eu.jtzipi.modules.io;
 
+import javafx.scene.image.Image;
+import javafx.scene.text.Font;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.filechooser.FileSystemView;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Predicate;
 
 /**
@@ -45,6 +45,19 @@ public final class IOUtils {
      * Acronym unknown path suffix.
      */
     public static final String UNKNOWN_PATH_SUFFIX = "";
+
+    public static final double MIN_FONT_SIZE = 7D;
+
+    public static final double DEFAULT_FONT_SIZE = 14D;
+    /**
+     * Type image map.
+     */
+    public static final Map<String, String> IMG_TYPE_MAP = new HashMap<>();
+
+    static {
+        IMG_TYPE_MAP.put( ".jpg", "JPEG Image" );
+    }
+
     /** Match all files path filer. */
     public static final DirectoryStream.Filter<Path> ACCEPT = path -> true;
     /** Math all filter. */
@@ -52,13 +65,82 @@ public final class IOUtils {
 
     public static final Predicate<Path> PATH_ACCEPT_DIR = path -> Files.isReadable( path ) && Files.isDirectory( path );
 
+
+
     private static final Logger LOG = LoggerFactory.getLogger( "IOUtils" );
     /** File System View.*/
     private static final FileSystemView FSV = FileSystemView.getFileSystemView();
+
     private IOUtils() {
         throw new AssertionError();
     }
 
+    /**
+     * Load image for path.
+     * @param path path to image
+     * @return image
+     * @throws IOException if loading failed
+     * @throws NullPointerException if {@code path} is null
+     */
+    public static Image loadImage( final Path path) throws IOException {
+        Objects.requireNonNull(path);
+
+        try (InputStream ips = Files.newInputStream(path)) {
+            Image img = new Image(ips);
+
+            return img;
+        } catch (final IOException ioE) {
+            LOG.error("Can not read Pic '" + path + "' ");
+            throw ioE;
+        }
+    }
+
+    /**
+     * Load a font from path.
+     * @param path path
+     * @param size size
+     * @return Font object
+     * @throws IOException io loading font or {@code path} is not readable
+     *
+     */
+    public static Font loadFont( final Path path, final double size ) throws IOException  {
+        Objects.requireNonNull(path);
+        // Error
+    if( !Files.isReadable( path )) {
+        throw new IOException( "Path '"+path+"' is not readable" );
+    }
+        // Too small
+        if( size < MIN_FONT_SIZE) {
+            throw new IllegalArgumentException("Font size < " + MIN_FONT_SIZE );
+        }
+        // try
+        Font font;
+        try( InputStream io = Files.newInputStream(path)) {
+
+            font = Font.loadFont(io, size);
+        } catch (final IOException ioE) {
+            LOG.error("Can not read font for path '" + path + "'" );
+            throw ioE;
+        }
+
+        return font;
+
+    }
+
+
+    public static Font loadFontSafe( final Path path,  double size ) {
+        Objects.requireNonNull( path );
+        if( size < MIN_FONT_SIZE ) {
+            size = MIN_FONT_SIZE;
+        }
+        Font font;
+        try {
+            font = IOUtils.loadFont( path, size );
+        } catch ( final IOException ioe ) {
+            font = Font.getDefault();
+        }
+        return font;
+    }
 
     /**
      * Format bytes.
@@ -122,6 +204,7 @@ public final class IOUtils {
         return IOUtils.lookupDir( p, null );
     }
 
+
     /**
      * Lookup path for sub path.
      * <p>
@@ -168,6 +251,7 @@ public final class IOUtils {
         return nodeL;
     }
 
+
     /**
      * Return the file name of a file denoted by this path.
      * This is the part before the last dot (.).
@@ -182,11 +266,25 @@ public final class IOUtils {
         if ( !Files.isReadable( path ) ) {
             throw new IOException( "Path '" + path + "' is not readable" );
         }
-
-        String[] temp = splitPathFileName(path);
+    if( null == path ) {
+        return UNKNOWN_PATH_NAME;
+    }
+        String[] temp = split(path.getFileName().toString());
         return 0 == temp.length ? UNKNOWN_PATH_NAME : temp[0];
     }
 
+    /**
+     * Return 'raw' path name that is part of file name before first dot ({@literal .}).
+     * @param path path
+     * @return part of {@code path} name before '.' or {@linkplain #UNKNOWN_PATH_NAME}
+     * @throws NullPointerException if {@code path} is null
+     */
+    public static String getPathName( final String path ) {
+        Objects.requireNonNull( path );
+
+        String[] temp = split(path);
+        return 0 == temp.length ? UNKNOWN_PATH_NAME : temp[0];
+    }
     /**
      * Read path name ignoring io error.
      * @param path path to read
@@ -217,9 +315,12 @@ public final class IOUtils {
         if ( !Files.isReadable( path ) ) {
             throw new IOException( "Path '" + path + "' is not readable" );
         }
+        // Path without name
+        if( null == path.getFileName() ) {
+            return UNKNOWN_PATH_SUFFIX;
+        }
 
-
-        String[] temp = splitPathFileName(path);
+        String[] temp = split(path.toString());
         return 0 == temp.length ? UNKNOWN_PATH_SUFFIX : temp[1];
     }
 
@@ -240,23 +341,19 @@ public final class IOUtils {
         return suffix;
     }
 
-
     /**
-     * Split file name of path into two parts 1) file name 2) file suffix.
-     * @param path path
-     * @return array with index 0 == file name 1 == file suffix (maybe '' if no suffix) or empty array if {@code path}
-     * have no file name
+     * Return whether a path maybe image.
+     * <p>
+     *     Warning: this only check the file suffix against a map of known java supported image files.
+     * </p>
+     * @param path path to image
+     * @return {@code false} if {@code path} seem to be no image or is null
      */
-    private static String[] splitPathFileName( Path path ) {
-        assert null != path : "Error : path is null";
-        Path p = path.getFileName();
-
-        if( null == p ) {
-
-            return new String[0];
-        }
-
-        String fileName =  p.toString();
+    public static boolean isImage( final Path path )  {
+        return null == path ? false : IMG_TYPE_MAP.containsKey( getPathNameSafe( path ) );
+    }
+    private static String[] split( String fileName ) {
+        assert null != fileName : "File name is null";
 
         int lastDot = fileName.lastIndexOf( "." );
 

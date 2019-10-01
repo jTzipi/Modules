@@ -17,6 +17,7 @@
 package earth.eu.jtzipi.modules.node.path;
 
 
+
 import earth.eu.jtzipi.modules.io.IOUtils;
 import earth.eu.jtzipi.modules.node.INode;
 import org.slf4j.Logger;
@@ -25,11 +26,10 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.FileTime;
 import java.text.Collator;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -41,11 +41,12 @@ import java.util.stream.Collectors;
 public class PathNode implements IPathNode, Comparable<IPathNode> {
 
     private static final Logger LOG = LoggerFactory.getLogger( "PathNode" );
+
+    // Collator for compare name
     private static final Collator COL = Collator.getInstance();
     /** Default comparator. */
     private static final Comparator<IPathNode> COMP = Comparator.comparing(IPathNode::isDir).thenComparing( IPathNode::isReadable ).thenComparing( ( pn, pn2 ) -> COL.compare( pn.getName(), pn2.getName()  ) ).reversed();
-    /** Description.*/
-    String desc;
+
     /** parent node. If null root. */
     private IPathNode parent;
     /** path to this node. */
@@ -57,16 +58,26 @@ public class PathNode implements IPathNode, Comparable<IPathNode> {
     /** sub nodes.*/
     private List<? extends IPathNode> subNodeL;
 
+    /** Type .*/
     String type;
+    /** Byte length .*/
     long length;
+    /** Path level. */
     int depth;
+    /** Link */
     boolean link;
+    /** dir. */
     boolean dir;
+    /** Readable. */
     boolean readable;
     /** Indicator for subnodes created */
     boolean subNodesCreated;
-    private String name;
-
+    /** Name .*/
+    String name;
+    /** Description.*/
+    String desc;
+    /** File Time (optional) . */
+    FileTime ftc;
     /**
      * PathNode main.
      * @param path
@@ -80,9 +91,10 @@ public class PathNode implements IPathNode, Comparable<IPathNode> {
 
     /**
      * Create new path node.
-     * @param path
-     * @param parentNode
-     * @return
+     * @param path path
+     * @param parentNode parent node (maybe null if root)
+     * @return PathNode for path and parent
+     * @throws NullPointerException if {@code path} is
      */
     public static PathNode of( final Path path, final IPathNode parentNode )  {
         Objects.requireNonNull(path);
@@ -99,12 +111,26 @@ public class PathNode implements IPathNode, Comparable<IPathNode> {
         this.dir = Files.isDirectory( path );
         try {
             this.length = dir? DIR_LENGTH : Files.size( path );
-            this.type = Files.probeContentType( path );
+
         } catch ( IOException e ) {
 
             this.length = 0L;
+        }
+        try{
+            this.type = Files.probeContentType( path );
+        } catch ( final IOException ioE ) {
             this.type = "<Unknown>";
         }
+        try {
+            BasicFileAttributes attrs = Files.readAttributes(path, BasicFileAttributes.class);
+
+            ftc = attrs.creationTime();
+        } catch ( IOException ioE ) {
+
+            ftc = null;
+        }
+
+
         this.readable = Files.isReadable(path);
         this.subNodesCreated = false;
         this.name = IOUtils.getPathDisplayName( path );
@@ -203,6 +229,11 @@ public class PathNode implements IPathNode, Comparable<IPathNode> {
     }
 
     @Override
+    public Optional<FileTime> getCreated() {
+        return null == this.ftc ? Optional.empty(): Optional.of( ftc );
+    }
+
+    @Override
     public int hashCode() {
         int res = Objects.hashCode( getValue() );
         res= 79 * res + Long.hashCode( getFileLength() );
@@ -230,7 +261,25 @@ public class PathNode implements IPathNode, Comparable<IPathNode> {
     }
 
     @Override
+    public String toString() {
+        return "PathNode{" +
+                "path=" + path +
+                ", type='" + type + '\'' +
+                ", length=" + length +
+                ", depth=" + depth +
+                ", link=" + link +
+                ", dir=" + dir +
+                ", readable=" + readable +
+                ", subNodesCreated=" + subNodesCreated +
+                ", name='" + name + '\'' +
+                ", desc='" + desc + '\'' +
+                '}';
+    }
+
+    @Override
     public int compareTo( IPathNode pathNode ) {
         return COMP.compare( this, pathNode );
     }
+
+
 }

@@ -20,10 +20,11 @@ package earth.eu.jtzipi.modules.node.path;
 import earth.eu.jtzipi.modules.node.INode;
 
 import java.nio.file.Path;
+import java.nio.file.attribute.FileTime;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Predicate;
 
 /**
@@ -43,7 +44,6 @@ public interface IPathNode extends INode<Path> {
      * Length of a directory.
      */
     long DIR_LENGTH = -1L;
-
     /**
      * Depth of root node;
      */
@@ -53,8 +53,7 @@ public interface IPathNode extends INode<Path> {
      * If this path name is not readable.
      */
     String PATH_NOT_READABLE = "<Not readable>";
-    /** Directories first then readable. */
-    Comparator<IPathNode> DIR_FIRST_COMP = Comparator.comparing( IPathNode::isLeaf ).thenComparing(IPathNode::isReadable);
+
 
     /**
      * Create a list of nodes until the root.
@@ -77,12 +76,17 @@ public interface IPathNode extends INode<Path> {
 
     /**
      * Name of path.
+     * <p>
+     *     That is the name of last path component.
+     * </p>
+     *
      * @return name
      */
     String getName();
 
     /**
      * Path description.
+     * System dependent description of file.
      * @return description
      */
     String getDesc();
@@ -121,6 +125,8 @@ public interface IPathNode extends INode<Path> {
 
     /**
      * Type of path.
+     * System dependent description of file type.
+     * Like image or folder.
      * @return type
      */
     String getType();
@@ -138,5 +144,9 @@ public interface IPathNode extends INode<Path> {
      */
     List<? extends IPathNode> getSubnodes( Predicate<Path> predicate );
 
-
+    /**
+     * Return time of creation if readable.
+     * @return created date if readable or Optional.empty();
+     */
+    Optional<FileTime> getCreated();
 }
