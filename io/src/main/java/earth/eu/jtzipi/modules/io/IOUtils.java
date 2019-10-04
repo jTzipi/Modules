@@ -27,6 +27,7 @@ import java.io.InputStream;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.function.Predicate;
 
@@ -75,6 +76,7 @@ public final class IOUtils {
         throw new AssertionError();
     }
 
+
     /**
      * Load image for path.
      * @param path path to image
@@ -94,6 +96,9 @@ public final class IOUtils {
             throw ioE;
         }
     }
+
+
+
 
     /**
      * Load a font from path.
@@ -127,7 +132,12 @@ public final class IOUtils {
 
     }
 
-
+    /**
+     *
+     * @param path
+     * @param size
+     * @return
+     */
     public static Font loadFontSafe( final Path path,  double size ) {
         Objects.requireNonNull( path );
         if( size < MIN_FONT_SIZE ) {
@@ -170,6 +180,13 @@ public final class IOUtils {
         return String.format("%.1f %sB", ri, pre);
     }
 
+    public static Path getHomeDir() {
+        return Paths.get(System.getProperty( "user.home" ));
+    }
+
+    public static Path getProgramDir() {
+        return Paths.get( System.getProperty( "user.dir" ) );
+    }
     /**
      * Return file path name denoting this path.
      * <p>
@@ -350,7 +367,9 @@ public final class IOUtils {
      * @return {@code false} if {@code path} seem to be no image or is null
      */
     public static boolean isImage( final Path path )  {
-        return null == path ? false : IMG_TYPE_MAP.containsKey( getPathNameSafe( path ) );
+        String su = getPathSuffixSafe( path );
+        // LOG.warn( "Suffix " + su );
+        return null == path ? false : IMG_TYPE_MAP.containsKey( su.toLowerCase() );
     }
     private static String[] split( String fileName ) {
         assert null != fileName : "File name is null";
