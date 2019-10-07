@@ -24,53 +24,55 @@ import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.function.Predicate;
 
 /**
- * Callable for searching paths.
- *
+ * Callable for searching paths in a dir and its sub dirs.
+ * <p>
+ *     We crawl all directories looking for file types via
+ * </p>
  *
  */
-public class FindPathTask implements Callable<Long> {
+public class FindPathTask implements Callable<List<Path>> {
 
-    public static final Path __NULL__ = Paths.get("/__NULL__");
+
 
 
     private static final Logger Log = LoggerFactory.getLogger( "FindPath" );
 
-    private long matches;
+    //private long matches;
     private Path path;      // root path
+    private List<Path> foundPathL;
     private Predicate<Path> criteria;   // predicate
-    private BlockingQueue<Path> foundPathBQ;    // shared path
+
+
 
     FindPathTask( final Path rootPath,
-                  final Predicate<Path> pathPredicate,
-                //  final BlockingDeque<Path> pathBlockingDeque,
-                    final BlockingQueue<Path> resultQueue ) {
+                  final Predicate<Path> pathPredicate) {
 
         this.path = rootPath;
-
+    this.foundPathL = new ArrayList<>();
         this.criteria = pathPredicate;
 
-        this.foundPathBQ= resultQueue;
+
     }
 
     /**
      *
      * @param root
      * @param pathCriteria
-     * @param sharedQueue
+     *
      * @return
      * @throws IOException
      */
-    public static FindPathTask of( Path root, Predicate<Path> pathCriteria, BlockingQueue<Path> sharedQueue ) throws IOException {
+    public static FindPathTask of( Path root, Predicate<Path> pathCriteria ) throws IOException {
         Objects.requireNonNull(root, "root path is null");
-        Objects.requireNonNull( sharedQueue );
+
 
         if( !Files.isReadable( root ) ) {
             throw new IOException("Path[='"+root+"'] is not readable");
@@ -84,20 +86,20 @@ public class FindPathTask implements Callable<Long> {
             pathCriteria = IOUtils.PATH_ACCEPT_ALL;
         }
 
-        return new FindPathTask( root, pathCriteria, sharedQueue );
+        return new FindPathTask( root, pathCriteria );
     }
 
     @Override
-    public Long call() throws Exception {
+    public List<Path> call() throws Exception {
 
-        Log.warn( "Starte suche" );
+        Log.warn( "Start" );
         search( path );
-        foundPathBQ.add( __NULL__) ;
 
 
-        System.out.println("Fertig " + path  );
-        System.out.println(" " + matches   );
-        return matches;
+
+        //System.out.println("Fertig " + path  );
+        // System.out.println(" " + matches   );
+        return foundPathL;
     }
 
     private void search( final Path path ) {
@@ -119,11 +121,9 @@ public class FindPathTask implements Callable<Long> {
                 }
 
                 if( criteria.test( pn ) ) {
-                   boolean offered = foundPathBQ.offer( pn );
 
-                   if( offered ) {
-                       matches++;
-                   }
+        foundPathL.add( pn );
+
                 }
             }
 

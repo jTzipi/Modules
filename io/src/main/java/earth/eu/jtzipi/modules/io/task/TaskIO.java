@@ -16,18 +16,18 @@
 
 package earth.eu.jtzipi.modules.io.task;
 
-import earth.eu.jtzipi.modules.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.function.Predicate;
 
 /**
@@ -35,40 +35,37 @@ import java.util.function.Predicate;
  * @author jTzipi
  */
 public class TaskIO {
-    private static final Logger Log = LoggerFactory.getLogger("");
-
-
-    private static final int CPUS = Runtime.getRuntime().availableProcessors();
+    public static final int CPUS = Runtime.getRuntime().availableProcessors();
+    private static final Logger Log = LoggerFactory.getLogger( "TaskIO" );
     private static ExecutorService ser = Executors.newFixedThreadPool( CPUS );
-
 
     /**
      * Start a file search.
-     * @param rootPath directory to start
-     * @param pathPred predicate
-     * @param sharedPathQ shared path
-     * @param ser Executor service
-     * @throws IOException if {@code rootPath} is
+     *
+     * @param rootPathList directories to start
+     * @param pathPred     predicate
+     *
+     * @param ser          Executor service
      */
-    public static void searchFiles( final Path rootPath,  Predicate<Path> pathPred, BlockingQueue<Path> sharedPathQ, ExecutorService ser ) throws IOException {
-        Objects.requireNonNull(rootPath, "root path");
-        Objects.requireNonNull( sharedPathQ, "shared" );
+    public static Map<Path, Future<List<Path>>> searchFiles( final List<Path> rootPathList, Predicate<Path> pathPred, ExecutorService ser ) {
+        Objects.requireNonNull( rootPathList, "root path" );
 
-        if(!Files.isReadable(rootPath))  {
-            throw new IOException( "Can not read '" + rootPath + "'" );
+
+        Map<Path, Future<List<Path>>> futureLM = new HashMap<>();
+        for ( Path dir : rootPathList ) {
+            try {
+                FindPathTask fpt = FindPathTask.of( dir, pathPred );
+                futureLM.put( dir, ser.submit( fpt ) );
+            } catch ( final IOException ioE ) {
+                futureLM.put( dir, null );
+                Log.warn( "Can not read dir'" + dir );
+            }
+
+
+            // System.err.println("Los gehts '" + path + "'" );
+
+
         }
-
-        List<Path> dirs = IOUtils.lookupDir( rootPath, IOUtils.PATH_ACCEPT_DIR );
-
-
-
-                //FindPathTask fpt = FindPathTask.of( path, imgPred, imgQ );
-                // System.err.println("Los gehts '" + path + "'" );
-
-
-
-
-
-
+        return futureLM;
     }
 }
