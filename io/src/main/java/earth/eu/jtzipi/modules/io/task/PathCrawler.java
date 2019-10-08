@@ -25,6 +25,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Iterator;
+import java.util.Objects;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.function.Predicate;
@@ -32,16 +33,22 @@ import java.util.function.Predicate;
 
 /**
  * PathCrawler scans directories for files.
- *
+ *   <p>
+ *       We use a blocking q to store found files.
+ *       That is this class is a <i>producer</i>.
+ *      Other threads take files to do other tasks.
+ *   </p>
  */
 public class PathCrawler implements Callable<Void> {
 
-
+    /** Indicator that this branch is finished.*/
     public static final Path __NULL__ = Paths.get("/null");
+
     private static final Logger LOG = LoggerFactory.getLogger( "" );
-    private Path root;
-    private Predicate<Path> pred;
-    private BlockingQueue<Path> foundPathBQ;    // shared path
+
+    private final Path root;
+    private final Predicate<Path> pred;
+    private final BlockingQueue<Path> foundPathBQ;    // shared path
 
 
     private PathCrawler( final Path dir, final Predicate<Path> predicate, final BlockingQueue<Path> sharedBQ ) {
@@ -50,11 +57,20 @@ public class PathCrawler implements Callable<Void> {
         this.foundPathBQ = sharedBQ;
     }
 
+    public static PathCrawler of( final Path rootDir, final Predicate<Path> pathPred, final BlockingQueue<Path> sharedBlockingQ ) throws IOException {
+        Objects.requireNonNull( rootDir );
+        Objects.requireNonNull( sharedBlockingQ );
 
+        if(!Files.isReadable( rootDir )) {
+            throw new IOException( "Can not read dir '" + rootDir + "'" );
+        }
 
+        return new PathCrawler( rootDir, pathPred, sharedBlockingQ );
+    }
     public Void call(  ) {
 
-        search( root );
+        search( root ); // crawl
+        foundPathBQ.add( __NULL__ ); // put null
         return null;
     }
 
@@ -80,7 +96,14 @@ public class PathCrawler implements Callable<Void> {
                 // found
                 if( pred.test( pn ) ) {
 
+                    // put to bq
 
+                    try {
+                        foundPathBQ.put( pn );
+                    } catch ( InterruptedException iE ) {
+                        LOG.info("Thread ir");
+                        Thread.currentThread().interrupt();
+                    }
                 }
             }
 

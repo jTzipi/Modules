@@ -34,9 +34,15 @@ import java.util.function.Predicate;
 /**
  * Callable for searching paths in a dir and its sub dirs.
  * <p>
- *     We crawl all directories looking for file types via
- * </p>
+ *     This path find task traverses all sub dirs of a root dir adding
+ *     path's to a list matching certain predicate.
+ *     <br/>
+ *     When all directories are traversed a list of found paths returned.
+ *     <br/>
  *
+ *     There is no handling of intermediate results.
+ * </p>
+ * @author jTzipi
  */
 public class FindPathTask implements Callable<List<Path>> {
 
@@ -56,19 +62,20 @@ public class FindPathTask implements Callable<List<Path>> {
                   final Predicate<Path> pathPredicate) {
 
         this.path = rootPath;
-    this.foundPathL = new ArrayList<>();
+        this.foundPathL = new ArrayList<>();
         this.criteria = pathPredicate;
 
 
     }
 
     /**
+     * Create FindPathTask.
      *
-     * @param root
-     * @param pathCriteria
+     * @param root root dir
+     * @param pathCriteria path predicate (optional)
      *
-     * @return
-     * @throws IOException
+     * @return FindPathTask
+     * @throws IOException if
      */
     public static FindPathTask of( Path root, Predicate<Path> pathCriteria ) throws IOException {
         Objects.requireNonNull(root, "root path is null");
@@ -103,13 +110,15 @@ public class FindPathTask implements Callable<List<Path>> {
     }
 
     private void search( final Path path ) {
-
+    // path not readable return
             if(!Files.isReadable( path )) {
                 Log.warn( "Can not read dir '" + path + "'" );
 
                 return;
             }
-        try( DirectoryStream<Path> ds = Files.newDirectoryStream(path) ) {
+
+
+            try( DirectoryStream<Path> ds = Files.newDirectoryStream(path) ) {
             final Iterator<Path> pit = ds.iterator();
             while(pit.hasNext()) {
 
@@ -129,6 +138,7 @@ public class FindPathTask implements Callable<List<Path>> {
 
         } catch( final IOException ioE ) {
 
+            Log.warn("Error reading dir", ioE  );
         }
 
     }
