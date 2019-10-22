@@ -105,7 +105,7 @@ public interface IPathNode extends INode<Path> {
 
     /**
      * Path is readable by Java.
-     * @return if path is regular
+     * @return if path is regular readable
      */
     boolean isReadable();
 

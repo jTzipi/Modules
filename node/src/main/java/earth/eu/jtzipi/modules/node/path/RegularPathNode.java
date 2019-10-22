@@ -35,10 +35,13 @@ import java.util.stream.Collectors;
 
 /**
  * Default Path Node.
+ * <p>
+ *     Regular path node is a node which can be read by the jvm.
+ *
  *
  * @author jTzipi
  */
-public class PathNode implements IPathNode, Comparable<IPathNode> {
+public class RegularPathNode implements IPathNode, Comparable<IPathNode> {
 
     private static final Logger LOG = LoggerFactory.getLogger( "PathNode" );
 
@@ -83,7 +86,7 @@ public class PathNode implements IPathNode, Comparable<IPathNode> {
      * @param path
      * @param parentPathNode
      */
-    PathNode( final Path path, final IPathNode parentPathNode ) {
+    RegularPathNode( final Path path, final IPathNode parentPathNode ) {
 
         this.parent = parentPathNode;
         this.path = path;
@@ -96,10 +99,10 @@ public class PathNode implements IPathNode, Comparable<IPathNode> {
      * @return PathNode for path and parent
      * @throws NullPointerException if {@code path} is
      */
-    public static PathNode of( final Path path, final IPathNode parentNode )  {
+    public static RegularPathNode of( final Path path, final IPathNode parentNode )  {
         Objects.requireNonNull(path);
 
-        PathNode pn = new PathNode( path, parentNode );
+        RegularPathNode pn = new RegularPathNode( path, parentNode );
 
         pn.init( path );
 
@@ -110,25 +113,22 @@ public class PathNode implements IPathNode, Comparable<IPathNode> {
     private void init( final Path path )  {
         this.dir = Files.isDirectory( path );
         try {
-            this.length = dir? DIR_LENGTH : Files.size( path );
+            BasicFileAttributes attrs = Files.readAttributes(path, BasicFileAttributes.class);
 
+            this.length = dir? DIR_LENGTH : attrs.size( );
+
+            ftc = attrs.creationTime();
         } catch ( IOException e ) {
 
             this.length = 0L;
+            ftc = FileTime.fromMillis( 0L );
         }
         try{
             this.type = Files.probeContentType( path );
         } catch ( final IOException ioE ) {
             this.type = "<Unknown>";
         }
-        try {
-            BasicFileAttributes attrs = Files.readAttributes(path, BasicFileAttributes.class);
 
-            ftc = attrs.creationTime();
-        } catch ( IOException ioE ) {
-
-            ftc = null;
-        }
 
 
         this.readable = Files.isReadable(path);
@@ -205,7 +205,7 @@ public class PathNode implements IPathNode, Comparable<IPathNode> {
                     .stream()
                     .filter(pp)
                     .sorted()
-                    .map( sp -> PathNode.of( sp, PathNode.this ) )
+                    .map( sp -> NodeProvider.create( sp, RegularPathNode.this ) )
                     .collect( Collectors.toList() );
             this.subNodesCreated = true;
         }
