@@ -17,7 +17,6 @@
 package earth.eu.jtzipi.modules.node.path;
 
 
-
 import earth.eu.jtzipi.modules.io.IOUtils;
 import earth.eu.jtzipi.modules.node.INode;
 import org.slf4j.Logger;
@@ -28,8 +27,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
-import java.text.Collator;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -45,10 +46,8 @@ public class RegularPathNode implements IPathNode, Comparable<IPathNode> {
 
     private static final Logger LOG = LoggerFactory.getLogger( "PathNode" );
 
-    // Collator for compare name
-    private static final Collator COL = Collator.getInstance();
-    /** Default comparator. */
-    private static final Comparator<IPathNode> COMP = Comparator.comparing(IPathNode::isDir).thenComparing( IPathNode::isReadable ).thenComparing( ( pn, pn2 ) -> COL.compare( pn.getName(), pn2.getName()  ) ).reversed();
+
+
 
     /** parent node. If null root. */
     private IPathNode parent;

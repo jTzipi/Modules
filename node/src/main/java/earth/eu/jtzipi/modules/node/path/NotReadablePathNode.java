@@ -27,16 +27,20 @@ import java.util.Optional;
 import java.util.function.Predicate;
 
 
-public final class NotReadablePathNode implements IPathNode {
+public final class NotReadablePathNode implements IPathNode, Comparable<IPathNode> {
 
     private final Path path;
     private final IPathNode parent;
-
 
     private String name;
     private String desc;
 
 
+    /**
+     *
+     * @param path
+     * @param parentNode
+     */
      NotReadablePathNode( final Path path, final IPathNode parentNode ) {
         this.path = path;
         this.parent = parentNode;
@@ -117,5 +121,10 @@ public final class NotReadablePathNode implements IPathNode {
     @Override
     public Path getValue() {
         return path;
+    }
+
+    @Override
+    public int compareTo( IPathNode iPathNode ) {
+        return COMP.compare( this, iPathNode  );
     }
 }

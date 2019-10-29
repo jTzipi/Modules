@@ -101,7 +101,7 @@ public class PathCrawler implements Callable<Void> {
                     try {
                         foundPathBQ.put( pn );
                     } catch ( InterruptedException iE ) {
-                        LOG.info("Thread ir");
+
                         Thread.currentThread().interrupt();
                     }
                 }

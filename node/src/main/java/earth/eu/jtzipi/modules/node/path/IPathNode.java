@@ -21,10 +21,8 @@ import earth.eu.jtzipi.modules.node.INode;
 
 import java.nio.file.Path;
 import java.nio.file.attribute.FileTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.text.Collator;
+import java.util.*;
 import java.util.function.Predicate;
 
 /**
@@ -40,6 +38,12 @@ import java.util.function.Predicate;
  */
 public interface IPathNode extends INode<Path> {
 
+
+    // Collator for compare name
+
+    Collator COL = Collator.getInstance();
+    /** Default comparator. */
+    Comparator<IPathNode> COMP = Comparator.comparing(IPathNode::isDir).thenComparing( IPathNode::isReadable ).thenComparing( ( pn, pn2 ) -> COL.compare( pn.getName(), pn2.getName()  ) ).reversed();
     /**
      * Length of a directory.
      */

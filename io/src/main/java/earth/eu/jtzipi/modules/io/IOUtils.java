@@ -65,6 +65,8 @@ public final class IOUtils {
      * Type image map.
      */
     public static final Map<String, String> IMG_TYPE_MAP = new HashMap<>();
+
+    public static final Map<String, String> IMG_FONT_MAP = new HashMap<>();
     /**
      * Match all files path filer.
      */
@@ -77,6 +79,8 @@ public final class IOUtils {
      * Accept dirs .
      */
     public static final Predicate<Path> PATH_ACCEPT_DIR = path -> Files.isReadable( path ) && Files.isDirectory( path );
+    public static final Predicate<Path> PATH_ACCEPT_FONT = IOUtils::isFont;
+    public static final Predicate<Path> PATH_ACCEPT_IMAGE = IOUtils::isImage;
     /**
      * File System View.
      */
@@ -89,6 +93,9 @@ public final class IOUtils {
     // TODO: use MediaType
     static {
         IMG_TYPE_MAP.put( ".jpg", "JPEG Image" );
+
+
+
     }
 
     /**
@@ -278,6 +285,7 @@ LOG.warn( "Path '" + p + "' is not readable" );
         }
         if(!Files.isDirectory( p ) ) {
 
+            throw new IllegalArgumentException( "You have to specify a directory" );
         }
 
         List<Path> pL;
@@ -460,6 +468,11 @@ LOG.warn( "Path '" + p + "' is not readable" );
         return null == path ? false : IMG_TYPE_MAP.containsKey( su.toLowerCase() );
     }
 
+    public static boolean isFont( final Path path ) {
+        String su = getPathSuffixSafe( path );
+
+        return null == path ? false : IMG_FONT_MAP.containsKey( su.toLowerCase() );
+    }
     private static FileSystem createZipFileSys( Path zipPath ) throws URISyntaxException, IOException {
         // create a jar
         URI uri = new URI( "jar", zipPath.toUri().toString(), null );

@@ -21,10 +21,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -34,22 +32,36 @@ import java.util.function.Predicate;
  * Task IO based.
  * @author jTzipi
  */
-public class TaskIO {
+public final class TaskIO {
+    /**
+     * Number of CPU's.
+     */
     public static final int CPUS = Runtime.getRuntime().availableProcessors();
-    private static final Logger Log = LoggerFactory.getLogger( "TaskIO" );
-    private static ExecutorService ser = Executors.newFixedThreadPool( CPUS );
 
+    private static final Logger Log = LoggerFactory.getLogger( "TaskIO" );
+    /**
+     * Default Executor.
+     */
+    private static ExecutorService FIXED_THREAD = Executors.newFixedThreadPool( CPUS );
+
+    private TaskIO() { throw new AssertionError(""); }
     /**
      * Start a file search.
+     * <p>
+     *
+     * </p>
      *
      * @param rootPathList directories to start
      * @param pathPred     predicate
-     *
      * @param ser          Executor service
+     * @return map with path keys and Futures of async computation of path
      */
-    public static Map<Path, Future<List<Path>>> searchFiles( final List<Path> rootPathList, Predicate<Path> pathPred, ExecutorService ser ) {
+    public static Map<Path, Future<List<Path>>> searchAsFuture( final List<Path> rootPathList, Predicate<Path> pathPred, ExecutorService ser ) {
         Objects.requireNonNull( rootPathList, "root path" );
 
+        if( null == ser ) {
+            ser = FIXED_THREAD;
+        }
 
         Map<Path, Future<List<Path>>> futureLM = new HashMap<>();
         for ( Path dir : rootPathList ) {
@@ -67,6 +79,31 @@ public class TaskIO {
 
         }
         return futureLM;
+    }
+
+    /**
+     * Start a search for files found in list of root dirs.
+     *
+     * @param rootPathList
+     * @param pathPred
+     * @param sharedQ
+     * @param ser
+     * @return
+     */
+    public static List<Future<?>> search( final List<Path> rootPathList, Predicate<Path> pathPred, BlockingQueue<Path> sharedQ, ExecutorService ser ) {
+
+
+        List<Future<?>> ret = new ArrayList<>();
+        for( Path path : rootPathList ) {
+try {
+    PathCrawler pc = PathCrawler.of( path, pathPred, sharedQ );
+    ret.add( ser.submit( pc ) );
+} catch ( final IOException ioE ) {
+
+}
+        }
+
+        return ret;
     }
     /**
      * Coerce an unchecked Throwable to a RuntimeException.

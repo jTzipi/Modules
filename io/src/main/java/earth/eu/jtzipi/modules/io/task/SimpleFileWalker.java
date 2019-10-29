@@ -35,22 +35,26 @@ public class SimpleFileWalker implements FileVisitor<Path> {
             this.bq = bq;
         }
 
-        private static boolean ir( final Path p ) {
-            return Files.isReadable( p );
-        }
+
 
         @Override
         public FileVisitResult preVisitDirectory( Path path, BasicFileAttributes basicFileAttributes ) throws IOException {
 
 
-            return ir( path ) ? FileVisitResult.CONTINUE : FileVisitResult.SKIP_SUBTREE;
+            return Files.isReadable( path ) ? FileVisitResult.CONTINUE : FileVisitResult.SKIP_SUBTREE;
         }
 
         @Override
         public FileVisitResult visitFile( Path path, BasicFileAttributes basicFileAttributes ) throws IOException {
 
             if( pp.test( path ) ) {
-                bq.add( path );
+                try {
+                    bq.put( path );
+                } catch ( InterruptedException ie ) {
+
+                    Thread.currentThread().interrupt();
+                    return FileVisitResult.TERMINATE;
+                }
             }
 
             return FileVisitResult.CONTINUE;

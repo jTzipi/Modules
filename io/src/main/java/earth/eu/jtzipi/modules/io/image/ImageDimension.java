@@ -19,11 +19,11 @@ package earth.eu.jtzipi.modules.io.image;
 /**
  * Simple Value Object for image dimension.
  * <p>
- *     Since We do not want a dependency on JavaFX nor use a double
- *     value for dimension we create a simple value object for this.
+ *     Since there is no simple image dimension class  we create a simple value object for this.
  *     <br/>
- *     This class is immutable. So threadsafe.
+ *     This class is immutable. So thread safe.
  * </p>
+ * @author jTzipi
  */
 public final class ImageDimension implements Comparable<ImageDimension> {
 
@@ -56,7 +56,13 @@ public final class ImageDimension implements Comparable<ImageDimension> {
 this(-1, -1 );
     }
 
-
+    /**
+     * Build new instance.
+     * @param width width &gt; 0
+     * @param height height &gt; 0
+     * @return ImageDimension of specified size
+     * @throws IllegalArgumentException if {@code width} or {@code height} are &lt; 0
+     */
     public static ImageDimension of( int width, int height ) {
         if( 0 > width || 0 > height ) {
             throw new IllegalArgumentException( "width[=+width+] or height[=+height+] are < 0" );
@@ -66,15 +72,15 @@ this(-1, -1 );
     }
 
     /**
-     *
-     * @return
+     * Width of image.
+     * @return image width
      */
     public int getWidth() {
         return this.width;
     }
 
     /**
-     *
+     * Height of image.
      * @return
      */
     public int getHeight() {

@@ -25,7 +25,6 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Callable;
@@ -86,7 +85,7 @@ public class FindPathTask implements Callable<List<Path>> {
         }
         // error
         if( !Files.isDirectory( root )) {
-            throw new IllegalArgumentException( "Path[='"+root+"'] is dir" );
+            throw new IllegalArgumentException( "Path[='"+root+"'] is not dir" );
         }
         // set default predicate
         if( null == pathCriteria) {
@@ -97,7 +96,7 @@ public class FindPathTask implements Callable<List<Path>> {
     }
 
     @Override
-    public List<Path> call() throws Exception {
+    public List<Path> call()  {
 
         Log.warn( "Start" );
         search( path );
@@ -119,11 +118,10 @@ public class FindPathTask implements Callable<List<Path>> {
 
 
             try( DirectoryStream<Path> ds = Files.newDirectoryStream(path) ) {
-            final Iterator<Path> pit = ds.iterator();
-            while(pit.hasNext()) {
+            for( Path pn : ds ) {
 
 
-                Path pn = pit.next();
+
                 //System.out.println(pn);
                 if( Files.isDirectory( pn )) {
                     search( pn );

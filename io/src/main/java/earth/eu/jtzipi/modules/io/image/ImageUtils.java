@@ -34,6 +34,7 @@ import java.util.WeakHashMap;
 /**
  * Utils for reading and writing image.
  *
+ * @author jTzipi
  */
 public  final class ImageUtils {
 private static final Logger Log = LoggerFactory.getLogger( "ImageUtils" );

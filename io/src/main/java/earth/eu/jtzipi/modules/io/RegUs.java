@@ -14,30 +14,15 @@
  *    limitations under the License.
  */
 
-package earth.eu.jtzipi.modules.node.decorator;
+package earth.eu.jtzipi.modules.io;
 
-import earth.eu.jtzipi.modules.io.image.ImageDimension;
-import javafx.scene.image.Image;
 
 /**
+ * Little pool of useful regular expression.
  *
  */
-public interface IDecorator {
+public enum RegUs {
 
-    /**
-     * Image for node.
-     * @return image or null
-     */
-    Image getImage();
 
-    /**
-     * Return image of dimension.
-     * @param imageDimension image dimension
-     * @return scaled image
-     */
-    Image getImageScaled( ImageDimension imageDimension );
 
-    String getTooltip();
-
-    String getStyle();
 }

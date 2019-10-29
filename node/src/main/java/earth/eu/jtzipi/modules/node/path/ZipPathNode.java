@@ -41,7 +41,7 @@ import static java.util.stream.Collectors.toList;
  * </p>
  *
  */
-public class ZipPathNode implements IPathNode {
+public class ZipPathNode implements IPathNode, Comparable<ZipPathNode> {
 
     /** parent node. */
     IPathNode parent;
@@ -222,4 +222,11 @@ return getSubnodes( null );
     public Path getValue() {
         return relPath;
     }
+
+    @Override
+    public int compareTo( ZipPathNode zipPathNode ) {
+        return 0; // TODO: do impl
+    }
+
+
 }
