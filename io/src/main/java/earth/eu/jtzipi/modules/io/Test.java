@@ -18,8 +18,14 @@ package earth.eu.jtzipi.modules.io;
 
 
 
+import earth.eu.jtzipi.modules.io.watcher.Watcher;
+
+import java.io.IOException;
 import java.nio.file.Path;
-import java.util.function.Predicate;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.FutureTask;
+
 
 public class Test {
 
@@ -28,7 +34,19 @@ public class Test {
 
 
         Path images = IOUtils.getHomeDir();
-        Predicate<Path> imgPred = p -> IOUtils.isImage( p );
 
+        try {
+            Watcher watch = Watcher.create();
+            FutureTask<?> f = watch.watch( images.resolve( "_Gadi" ));
+
+
+            Executors.newCachedThreadPool().submit( f ).get();
+
+        } catch ( IOException | InterruptedException | ExecutionException ioE ) {
+
+            System.out.println("Fehler " + ioE.getLocalizedMessage() );
+        }
+
+        System.out.println("ENDE");
     }
 }

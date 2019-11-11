@@ -16,7 +16,6 @@
 
 package earth.eu.jtzipi.modules.node.path;
 
-
 import earth.eu.jtzipi.modules.node.INode;
 
 import java.nio.file.Path;
@@ -136,10 +135,19 @@ public interface IPathNode extends INode<Path> {
     String getType();
 
     /**
+     * Is this path hidden.
+     *
+     * @return property hidden
+     */
+    boolean isHidden();
+
+    /**
      * List of sub nodes.
      * @return list of path wrapping sub node
      */
-    List<? extends IPathNode> getSubnodes();
+    default List<? extends IPathNode> getSubnodes() {
+        return getSubnodes( path ->  true );
+    }
 
     /**
      * List of sub nodes.

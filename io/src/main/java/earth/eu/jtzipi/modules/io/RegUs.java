@@ -17,12 +17,28 @@
 package earth.eu.jtzipi.modules.io;
 
 
+import java.util.function.Supplier;
+import java.util.regex.Pattern;
+
 /**
  * Little pool of useful regular expression.
  *
  */
-public enum RegUs {
+public enum RegUs implements Supplier<Pattern> {
 
 
+    ISO_DATE("^(?<year>[0-9]{4})-(?<month>1[0-2]|0[1-9])$"),;
 
+    private final String regex;
+    private final Pattern  patter;
+
+    RegUs( final String regExp ) {
+    this.regex = regExp;
+    this.patter = Pattern.compile( regExp );
+    }
+
+    @Override
+    public Pattern get() {
+        return patter;
+    }
 }

@@ -21,6 +21,7 @@ import earth.eu.jtzipi.modules.io.ZipUtils;
 import earth.eu.jtzipi.modules.node.INode;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -61,6 +62,7 @@ public class ZipPathNode implements IPathNode, Comparable<ZipPathNode> {
     private boolean leaf;
     private boolean symlink;
     private boolean readable;
+    private boolean hidden;
 
     private long length;
 
@@ -127,6 +129,7 @@ public class ZipPathNode implements IPathNode, Comparable<ZipPathNode> {
             this.length = bfa.size();
             this.symlink = bfa.isSymbolicLink();
             this.readable = true;
+            this.hidden = Files.isHidden(relPath);
 
         } catch ( final IOException ioE ) {
             this.dir = false;
@@ -181,11 +184,11 @@ public class ZipPathNode implements IPathNode, Comparable<ZipPathNode> {
     }
 
     @Override
-    public List<? extends IPathNode> getSubnodes() {
-
-
-return getSubnodes( null );
+    public boolean isHidden() {
+        return hidden;
     }
+
+
 
     @Override
     public List<? extends IPathNode> getSubnodes( Predicate<Path> predicate ) {

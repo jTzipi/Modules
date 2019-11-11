@@ -53,12 +53,12 @@ public class RegularPathNode implements IPathNode, Comparable<IPathNode> {
     private IPathNode parent;
     /** path to this node. */
     private Path path;
-
+    /** Path is hidden. */
+    boolean hidden;
     //
     // Properties
     //
-    /** sub nodes.*/
-    private List<? extends IPathNode> subNodeL;
+
 
     /** Type .*/
     String type;
@@ -72,8 +72,11 @@ public class RegularPathNode implements IPathNode, Comparable<IPathNode> {
     boolean dir;
     /** Readable. */
     boolean readable;
+
     /** Indicator for subnodes created */
     boolean subNodesCreated;
+    /** sub nodes.*/
+    private List<? extends IPathNode> subNodeL;
     /** Name .*/
     String name;
     /** Description.*/
@@ -129,7 +132,12 @@ public class RegularPathNode implements IPathNode, Comparable<IPathNode> {
         }
 
 
+        try {
+            this.hidden = Files.isHidden( path );
+        } catch ( IOException e ) {
 
+            this.hidden = false;
+        }
         this.readable = Files.isReadable(path);
         this.subNodesCreated = false;
         this.name = IOUtils.getPathDisplayName( path );
@@ -179,15 +187,8 @@ public class RegularPathNode implements IPathNode, Comparable<IPathNode> {
     }
 
     @Override
-    public List<? extends IPathNode> getSubnodes() {
-
-        if( !subNodesCreated ) {
-
-            this.subNodeL = getSubnodes( IOUtils.PATH_ACCEPT_ALL );
-
-        }
-
-        return this.subNodeL;
+    public boolean isHidden() {
+        return hidden;
     }
 
     @Override
@@ -229,7 +230,7 @@ public class RegularPathNode implements IPathNode, Comparable<IPathNode> {
 
     @Override
     public Optional<FileTime> getCreated() {
-        return null == this.ftc ? Optional.empty(): Optional.of( ftc );
+        return Optional.of( ftc );
     }
 
     @Override

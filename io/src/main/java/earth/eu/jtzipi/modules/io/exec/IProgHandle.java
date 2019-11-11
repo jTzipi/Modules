@@ -14,30 +14,11 @@
  *    limitations under the License.
  */
 
-package earth.eu.jtzipi.modules.node.decorator;
+package earth.eu.jtzipi.modules.io.exec;
 
-import earth.eu.jtzipi.modules.io.image.ImageDimension;
-import javafx.scene.image.Image;
+public interface IProgHandle {
 
-/**
- *
- */
-public interface IDecorator {
 
-    /**
-     * Image for node.
-     * @return image or null
-     */
-    Image getImage();
 
-    /**
-     * Return image of dimension.
-     * @param imageDimension image dimension
-     * @return scaled image
-     */
-    Image getImageScaled( ImageDimension imageDimension );
 
-    String getTooltip();
-
-    String getStyle();
 }

@@ -26,6 +26,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+/**
+ * Utils to store and load zip files.
+ * @author jTzipi
+ */
 public final class ZipUtils {
 
     final static Map<Path, FileSystem> zipMap = new HashMap<>();

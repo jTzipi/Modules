@@ -94,8 +94,8 @@ public final class NotReadablePathNode implements IPathNode, Comparable<IPathNod
     }
 
     @Override
-    public List<? extends IPathNode> getSubnodes() {
-        return this.getSubnodes( null );
+    public boolean isHidden() {
+        return false;
     }
 
     @Override
