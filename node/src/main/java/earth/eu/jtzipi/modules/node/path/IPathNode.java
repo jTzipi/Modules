@@ -161,4 +161,5 @@ public interface IPathNode extends INode<Path> {
      * @return created date if readable or Optional.empty();
      */
     Optional<FileTime> getCreated();
+
 }

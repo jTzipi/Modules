@@ -29,6 +29,7 @@ import java.net.URISyntaxException;
 import java.nio.file.*;
 import java.util.*;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
@@ -41,15 +42,19 @@ import static java.util.stream.Collectors.toList;
 public final class IOUtils {
 
     /**
+     * Accept hidden files.
+     */
+    public static final Predicate<Path> PATH_ACCEPT_HIDDEN = path -> {
+        try {
+            return Files.isHidden( path );
+        } catch ( IOException e ) {
+            return false;
+        }
+    };
+    /**
      * Acronym unknown path name.
      */
-    public static final String UNKNOWN_PATH_NAME = "<Unknown>";
-
-
-    /**
-     * Acronym unknown path suffix.
-     */
-    public static final String UNKNOWN_PATH_SUFFIX = "";
+    private static final String UNKNOWN_PATH_NAME = "<Unknown>";
 
     /**
      * Minimal font size.
@@ -71,6 +76,7 @@ public final class IOUtils {
      * Match all files path filer.
      */
     public static final DirectoryStream.Filter<Path> ACCEPT = path -> true;
+
     /**
      * Math all filter.
      */
@@ -79,7 +85,17 @@ public final class IOUtils {
      * Accept dirs .
      */
     public static final Predicate<Path> PATH_ACCEPT_DIR = path -> Files.isReadable( path ) && Files.isDirectory( path );
-    public static final Predicate<Path> PATH_ACCEPT_FONT = IOUtils::isFont;
+    /**
+     * Acronym unknown path suffix.
+     */
+    private static final String UNKNOWN_PATH_SUFFIX = "";
+    /**
+     * Accept font files.
+     */
+    public static final Predicate<Path> PATH_ACCEPT_FONT =  IOUtils::isFont;
+    /**
+     * Accept image files.
+     */
     public static final Predicate<Path> PATH_ACCEPT_IMAGE = IOUtils::isImage;
     /**
      * File System View.
@@ -96,6 +112,10 @@ public final class IOUtils {
 
 
 
+    }
+
+    private IOUtils() {
+        throw new AssertionError();
     }
 
     /**
@@ -119,8 +139,40 @@ public final class IOUtils {
         }
     }
 
-    private IOUtils() {
-        throw new AssertionError();
+    public static Optional<Image> loadImageSafe( final Path path ) {
+
+        try {
+            Image img = loadImage( path );
+            return Optional.of( img );
+        } catch ( IOException e ) {
+            return Optional.empty();
+        }
+
+    }
+
+    public static List<Image> streamAllImageFX( final Path path, boolean recursive ) throws IOException {
+
+        return Files.list( path )
+                .filter( PATH_ACCEPT_IMAGE )
+                .map( IOUtils::loadImageSafe )
+                .filter( Optional::isPresent )
+                .map( Optional::get )
+                .collect( Collectors.toList() );
+    }
+
+    public static List<Image> loadAllImageFX( final Path path, boolean recursive)  {
+
+        List<Image> imgL = new ArrayList<>();
+        for( Path imgPath : lookupDir( path, PATH_ACCEPT_IMAGE ) ) {
+            try {
+                imgL.add( loadImage( imgPath ) );
+            } catch ( IOException e ) {
+
+            }
+        }
+
+
+        return imgL;
     }
 
     /**
@@ -239,12 +291,22 @@ public final class IOUtils {
     }
 
     /**
+     * Return system file icon.
+     * @param path path to file
+     * @return icon
+     */
+    public static javax.swing.Icon getPathSystemIcon( final Path path ) {
+
+        return FSV.getSystemIcon( path.toFile() );
+    }
+    /**
      * Return description of path system dependent.
      *
      * @param path path
      * @return description
      */
     public static String getPathTypeDescription( final Path path ) {
+
         return FSV.getSystemTypeDescription( path.toFile() );
     }
 
@@ -468,6 +530,11 @@ LOG.warn( "Path '" + p + "' is not readable" );
         return null == path ? false : IMG_TYPE_MAP.containsKey( su.toLowerCase() );
     }
 
+    /**
+     * Return true if path denote to a font.
+     * @param path path
+     * @return {@code true} if path may be a font
+     */
     public static boolean isFont( final Path path ) {
         String su = getPathSuffixSafe( path );
 
@@ -571,4 +638,5 @@ LOG.warn( "Path '" + p + "' is not readable" );
             return path;
         }
     }
+
 }

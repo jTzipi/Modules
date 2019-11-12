@@ -24,11 +24,13 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.ImageInputStream;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Iterator;
+import java.util.Objects;
 import java.util.WeakHashMap;
 
 /**
@@ -119,5 +121,19 @@ Log.error( "Failed to read dimension ", ioE );
             imgRead.dispose();
         }
 
+    }
+
+    /**
+     * Create a buffered image from swing icon.
+     *
+     * @param icon icon
+     * @return buffered image
+     */
+    public static BufferedImage iconToBufferedImage( javax.swing.Icon icon ) {
+        Objects.requireNonNull( icon );
+        BufferedImage bufImg = GraphicsUtilities.createTranslucentCompatibleImage( icon.getIconWidth(), icon.getIconHeight() );
+        icon.paintIcon( null, bufImg.createGraphics(), 0, 0  );
+
+        return bufImg;
     }
 }

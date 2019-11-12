@@ -17,14 +17,9 @@
 package earth.eu.jtzipi.modules.io;
 
 
-
-import earth.eu.jtzipi.modules.io.watcher.Watcher;
-
-import java.io.IOException;
 import java.nio.file.Path;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
-import java.util.concurrent.FutureTask;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class Test {
@@ -35,18 +30,57 @@ public class Test {
 
         Path images = IOUtils.getHomeDir();
 
-        try {
-            Watcher watch = Watcher.create();
-            FutureTask<?> f = watch.watch( images.resolve( "_Gadi" ));
+//        try {
+//            Watcher watch = Watcher.create();
+//            FutureTask<?> f = watch.watch( images.resolve( "_Gadi" ));
+//
+//
+//            Executors.newCachedThreadPool().submit(f);
+//
+//        } catch ( IOException ioE ) {
+//
+//            System.out.println("Fehler " + ioE.getLocalizedMessage() );
+//        }
 
 
-            Executors.newCachedThreadPool().submit( f ).get();
-
-        } catch ( IOException | InterruptedException | ExecutionException ioE ) {
-
-            System.out.println("Fehler " + ioE.getLocalizedMessage() );
-        }
 
         System.out.println("ENDE");
+
+        int[] bla = { 0,12,3, 12, 1, 1, 1, 1, 1, 1, 1};
+        //System.err.println("Habe Duplikat ? " + getDuplicate( bla )  );
+
+    }
+
+
+
+    public static boolean getDuplicate( int[] numberArray ) {
+        // Wenn null oder keine Zahlen
+        if( null == numberArray || numberArray.length == 0 ) {
+            return false;
+        }
+
+        // Speichere alle Vorkommen der Zahlen
+        Map<Integer, Long> cmap = new HashMap<>();
+
+        // Pro Zahl erhöhe das Vorkommen um 1 wenn vorhanden oder setze auf 1 wenn noch nicht vorhanden war
+        for( int temp : numberArray ) {
+
+            //
+            // Das Bedeutet:
+            // Wenn 'temp' noch nicht da war füge 1 hinzu
+            // sonst erhöhe die Zahl der Vorkommen von 'temp' um 1
+            cmap.merge( temp, 1L, ( i1, i2 ) -> i1 = i1 + 1 );
+        }
+        // Wie viele Zahl
+        int size = numberArray.length;
+
+        // 1. Streame die Einträge der Map
+        // 2. Filtere nach alle Vorkommen von Zahlen die mehr als die Hälfte der Elemente
+
+       return cmap.entrySet()
+               .stream()
+               .filter( ent -> ent.getValue() > size/2 )
+
+               .count() > 0;
     }
 }

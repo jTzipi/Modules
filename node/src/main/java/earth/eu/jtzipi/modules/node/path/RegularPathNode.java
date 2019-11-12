@@ -200,10 +200,8 @@ public class RegularPathNode implements IPathNode, Comparable<IPathNode> {
         // if not created
         if( !subNodesCreated ) {
 
-
-            this.subNodeL = IOUtils.lookupDir( getValue() )
+            this.subNodeL = IOUtils.lookupDir( getValue(), pp )
                     .stream()
-                    .filter(pp)
                     .sorted()
                     .map( sp -> NodeProvider.create( sp, RegularPathNode.this ) )
                     .collect( Collectors.toList() );
