@@ -32,6 +32,7 @@
         <module>node</module>
         <module>io</module>
         <module>utils</module>
+        <module>fx</module>
     </modules>
 
     <scm>

@@ -47,7 +47,7 @@ public class Test {
         System.out.println("ENDE");
 
         int[] bla = { 0,12,3, 12, 1, 1, 1, 1, 1, 1, 1};
-        //System.err.println("Habe Duplikat ? " + getDuplicate( bla )  );
+        System.err.println("Habe Duplikat ? " + getDuplicate( bla )  );
 
     }
 

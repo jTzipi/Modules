@@ -160,20 +160,7 @@ public final class IOUtils {
                 .collect( Collectors.toList() );
     }
 
-    public static List<Image> loadAllImageFX( final Path path, boolean recursive)  {
 
-        List<Image> imgL = new ArrayList<>();
-        for( Path imgPath : lookupDir( path, PATH_ACCEPT_IMAGE ) ) {
-            try {
-                imgL.add( loadImage( imgPath ) );
-            } catch ( IOException e ) {
-
-            }
-        }
-
-
-        return imgL;
-    }
 
     /**
      * Load a JavaFX font from path.
