@@ -70,7 +70,7 @@ public final class IOUtils {
      * Type image map.
      */
     public static final Map<String, String> IMG_TYPE_MAP = new HashMap<>();
-
+    /** Font map.*/
     public static final Map<String, String> IMG_FONT_MAP = new HashMap<>();
     /**
      * Match all files path filer.
@@ -139,6 +139,11 @@ public final class IOUtils {
         }
     }
 
+    /**
+     * Try to load image.
+     * @param path path
+     * @return image if loaded or empty
+     */
     public static Optional<Image> loadImageSafe( final Path path ) {
 
         try {
@@ -500,6 +505,28 @@ LOG.warn( "Path '" + p + "' is not readable" );
 
         }
         return suffix;
+    }
+
+    /**
+     * Load Properties from path.
+     * @param pathToProp path
+     * @return properties
+     * @throws IOException if not able to load
+     * @throws NullPointerException if {@code pathToProp} is null
+     */
+    public static Properties loadProperties( final Path pathToProp ) throws IOException {
+
+
+        Properties prop = new Properties();
+
+        try( InputStream inStream = Files.newInputStream( pathToProp )  ) {
+        prop.load( inStream );
+        } catch ( final IOException ioE ) {
+
+            throw ioE;
+        }
+
+        return prop;
     }
 
     /**
