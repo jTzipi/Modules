@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
 
 /**
  * Little pool of useful regular expression.
- *
+ * @author jTzipi
  */
 public enum RegUs implements Supplier<Pattern> {
 

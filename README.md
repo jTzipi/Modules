@@ -7,3 +7,4 @@ Java library for useful modules.
 - io : Common IO related methods
 - node : Node related methods
 - utils : Other utils
+- fx : Some JavaFX related methods
