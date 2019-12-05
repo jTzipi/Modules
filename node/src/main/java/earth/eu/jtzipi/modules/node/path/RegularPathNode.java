@@ -211,6 +211,10 @@ public class RegularPathNode implements IPathNode, Comparable<IPathNode> {
         return this.subNodeL;
     }
 
+    boolean isCreated() {
+        return this.subNodesCreated;
+    }
+
     @Override
     public INode<Path> getParent() {
         return parent;

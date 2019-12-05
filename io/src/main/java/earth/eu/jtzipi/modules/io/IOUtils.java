@@ -16,12 +16,16 @@
 
 package earth.eu.jtzipi.modules.io;
 
+import earth.eu.jtzipi.modules.io.image.ImageUtils;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
 import javafx.scene.text.Font;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.swing.*;
 import javax.swing.filechooser.FileSystemView;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -51,11 +55,13 @@ public final class IOUtils {
             return false;
         }
     };
+
+
     /**
      * Acronym unknown path name.
      */
     private static final String UNKNOWN_PATH_NAME = "<Unknown>";
-
+public static final long FILE_SIZE_UNKNOWN = -1L;
     /**
      * Minimal font size.
      */
@@ -65,7 +71,6 @@ public final class IOUtils {
      * Default font size.
      */
     public static final double DEFAULT_FONT_SIZE = 14D;
-
     /**
      * Type image map.
      */
@@ -139,6 +144,34 @@ public final class IOUtils {
         }
     }
 
+    /**
+     * Get file size for path safe.
+     * @param path path
+     * @return size or {@linkplain #FILE_SIZE_UNKNOWN}
+     */
+    public static long getFileSizeSafe( final Path path ) {
+
+        long ret;
+
+        try {
+            ret = Files.size( path );
+        } catch ( IOException e ) {
+            ret = FILE_SIZE_UNKNOWN;
+        }
+return ret;
+    }
+
+    /**
+     * Try to load system icon of path.
+     * @param path path
+     * @return image
+     */
+    public static Image loadSystemIcon( final Path path ) {
+
+        Icon icon = getPathSystemIcon( path );
+        BufferedImage bufImg = ImageUtils.iconToBufferedImage( icon );
+        return SwingFXUtils.toFXImage( bufImg, null );
+    }
     /**
      * Try to load image.
      * @param path path

@@ -136,4 +136,5 @@ Log.error( "Failed to read dimension ", ioE );
 
         return bufImg;
     }
+
 }

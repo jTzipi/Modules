@@ -117,6 +117,9 @@ this(-1, -1 );
 
     @Override
     public int compareTo( ImageDimension imageDimension ) {
-        return 0;
+
+        int area = this.getHeight() * this.getWidth();
+        int other = imageDimension.getHeight() * imageDimension.getWidth();
+        return area == other ? 0 : area > other ? 1 : -1;
     }
 }

@@ -57,7 +57,6 @@ public interface IPathNode extends INode<Path> {
      */
     String PATH_NOT_READABLE = "<Not readable>";
 
-
     /**
      * Create a list of nodes until the root.
      * @param node node to create the path

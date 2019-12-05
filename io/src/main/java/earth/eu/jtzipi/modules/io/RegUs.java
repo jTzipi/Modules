@@ -17,6 +17,8 @@
 package earth.eu.jtzipi.modules.io;
 
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
@@ -26,7 +28,9 @@ import java.util.regex.Pattern;
  */
 public enum RegUs implements Supplier<Pattern> {
 
-
+    /**
+     * ISO Date.
+     */
     ISO_DATE("^(?<year>[0-9]{4})-(?<month>1[0-2]|0[1-9])$"),;
 
     private final String regex;
@@ -40,5 +44,26 @@ public enum RegUs implements Supplier<Pattern> {
     @Override
     public Pattern get() {
         return patter;
+    }
+
+
+    /**
+     * All Java Regular Expression meta Characters.
+     */
+    public static final Map<String, String> META_MAP = new HashMap<String, String>();
+
+    static {
+        META_MAP.put( "$", "\\$" );
+        META_MAP.put( "(", "\\(" );
+        META_MAP.put( ")", "\\)" );
+        META_MAP.put( "*", "\\*" );
+        META_MAP.put( "+", "\\+" );
+        META_MAP.put( ".", "\\." );
+        META_MAP.put( "?", "\\?" );
+        META_MAP.put( "[", "\\[" );
+        META_MAP.put( "\\", "\\\\" );
+        META_MAP.put( "^", "\\^" );
+        META_MAP.put( "{", "\\{" );
+        META_MAP.put( "|", "\\|" );
     }
 }
