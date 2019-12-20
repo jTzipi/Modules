@@ -25,24 +25,50 @@ import java.nio.file.Path;
  *
  * To control flow of watcher you must return one of {@code EventAction}.
  * E.G. to stop further watching you must return {@linkplain EventAction#STOP}.
+ *
  * @author jTzipi
  */
 public interface IWatchEventHandler {
 
+    /**
+     * If overflow occur.
+     *
+     * @param path path
+     * @param cnt  how often
+     * @return event action
+     */
     EventAction onOverflow( final Path path, final int cnt );
 
     /**
+     * A path is created.
      *
-     * @param path
-     * @param cnt
+     * @param path path
+     * @param cnt  how often
+     * @return event action
      */
     EventAction onCreate( final Path path, final int cnt );
 
+    /**
+     * If modify event occur.
+     *
+     * @param path path
+     * @param cnt  how often
+     * @return event action
+     */
     EventAction onModify( final Path path, final int cnt );
 
+    /**
+     * A path is deleted.
+     *
+     * @param path path
+     * @param cnt  how often
+     * @return event action
+     */
     EventAction onDelete( final Path path, final int cnt );
 
-    /** Event Action .*/
+    /**
+     * Event Action .
+     */
     enum EventAction {
         /**
          * Skip this event.

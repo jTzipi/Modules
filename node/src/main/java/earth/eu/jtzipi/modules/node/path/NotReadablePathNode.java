@@ -37,9 +37,8 @@ public final class NotReadablePathNode implements IPathNode, Comparable<IPathNod
 
 
     /**
-     *
-     * @param path
-     * @param parentNode
+     * @param path       path
+     * @param parentNode parent node
      */
      NotReadablePathNode( final Path path, final IPathNode parentNode ) {
         this.path = path;
@@ -99,7 +98,7 @@ public final class NotReadablePathNode implements IPathNode, Comparable<IPathNod
     }
 
     @Override
-    public List<? extends IPathNode> getSubnodes( Predicate<Path> predicate ) {
+    public List<IPathNode> getSubnodes( Predicate<Path> predicate ) {
         return Collections.emptyList();
     }
 

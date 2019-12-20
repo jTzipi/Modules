@@ -51,7 +51,7 @@ public class ZipPathNode implements IPathNode, Comparable<ZipPathNode> {
     /** Path to zip file. */
     Path zip;
 
-    List<? extends IPathNode> subNodeL;
+    List<IPathNode> subNodeL;
 
     private boolean subNodesCreated;
 
@@ -189,19 +189,18 @@ public class ZipPathNode implements IPathNode, Comparable<ZipPathNode> {
     }
 
 
-
     @Override
-    public List<? extends IPathNode> getSubnodes( Predicate<Path> predicate ) {
+    public List<IPathNode> getSubnodes( Predicate<Path> predicate ) {
 
-    if(!subNodesCreated) {
+        if ( !subNodesCreated ) {
 
-        this.subNodeL = IOUtils.streamZip( getZipRoot(), getValue() )
-                .stream()
-                .filter( predicate )
-                .sorted()
-                .map( zipp -> ZipPathNode.of( zipp, ZipPathNode.this ) )
-                .collect( toList() );
-    this.subNodesCreated = true;
+            this.subNodeL = IOUtils.streamZip( getZipRoot(), getValue() )
+                    .stream()
+                    .filter( predicate )
+                    .sorted()
+                    .map( zipp -> ZipPathNode.of( zipp, ZipPathNode.this ) )
+                    .collect( toList() );
+            this.subNodesCreated = true;
     }
         return subNodeL;
     }

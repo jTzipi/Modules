@@ -142,18 +142,20 @@ public interface IPathNode extends INode<Path> {
 
     /**
      * List of sub nodes.
+     *
      * @return list of path wrapping sub node
      */
-    default List<? extends IPathNode> getSubnodes() {
-        return getSubnodes( path ->  true );
+    default List<IPathNode> getSubnodes() {
+        return getSubnodes( path -> true );
     }
 
     /**
      * List of sub nodes.
+     *
      * @param predicate filter
      * @return list of path
      */
-    List<? extends IPathNode> getSubnodes( Predicate<Path> predicate );
+    List<IPathNode> getSubnodes( Predicate<Path> predicate );
 
     /**
      * Return time of creation if readable.

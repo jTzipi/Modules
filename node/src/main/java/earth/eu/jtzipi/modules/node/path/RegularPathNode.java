@@ -51,42 +51,64 @@ public class RegularPathNode implements IPathNode, Comparable<IPathNode> {
 
     /** parent node. If null root. */
     private IPathNode parent;
-    /** path to this node. */
+    /**
+     * path to this node.
+     */
     private Path path;
-    /** Path is hidden. */
-    boolean hidden;
+    /**
+     * Path is hidden.
+     */
+    private boolean hidden;
     //
     // Properties
     //
 
 
-    /** Type .*/
-    String type;
-    /** Byte length .*/
-    long length;
-    /** Path level. */
-    int depth;
-    /** Link */
-    boolean link;
-    /** dir. */
-    boolean dir;
-    /** Readable. */
-    boolean readable;
+    /**
+     * Type .
+     */
+    private String type;
+    /**
+     * Byte length .
+     */
+    private long length;
+    /**
+     * Path level.
+     */
+    private int depth;
+    /**
+     * Link
+     */
+    private boolean link;
+    /**
+     * dir.
+     */
+    private boolean dir;
+    /**
+     * Readable.
+     */
+    private boolean readable;
 
-    /** Indicator for subnodes created */
+    /**
+     * Indicator for subnodes created
+     */
     boolean subNodesCreated;
     /** sub nodes.*/
-    private List<? extends IPathNode> subNodeL;
+    private List<IPathNode> subNodeL;
     /** Name .*/
     String name;
-    /** Description.*/
+    /**
+     * Description.
+     */
     String desc;
-    /** File Time (optional) . */
+    /**
+     * File Time (optional) .
+     */
     FileTime ftc;
     /**
      * PathNode main.
-     * @param path
-     * @param parentPathNode
+     * @param path path
+     * @param parentPathNode parent path
      */
     RegularPathNode( final Path path, final IPathNode parentPathNode ) {
 
@@ -192,13 +214,15 @@ public class RegularPathNode implements IPathNode, Comparable<IPathNode> {
     }
 
     @Override
-    public List<? extends IPathNode> getSubnodes( Predicate<Path> pp ) {
-        if(!isDir()) {
+    public List<IPathNode> getSubnodes( Predicate<Path> pp ) {
+        if ( !isDir() ) {
             return Collections.emptyList();
         }
         Objects.requireNonNull( pp );
         // if not created
         if( !subNodesCreated ) {
+
+
 
             this.subNodeL = IOUtils.lookupDir( getValue(), pp )
                     .stream()

@@ -18,8 +18,12 @@ package earth.eu.jtzipi.modules.io.watcher;
 
 import java.nio.file.Path;
 
+/**
+ * Adapter for IWatchEventHandler.
+ *
+ * @author jTzipi
+ */
 public class WatchEventAdapter implements IWatchEventHandler {
-
 
 
     public WatchEventAdapter() {
