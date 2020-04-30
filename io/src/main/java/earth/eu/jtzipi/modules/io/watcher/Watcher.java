@@ -229,10 +229,10 @@ public final class Watcher {
                 for ( WatchEvent<?> event : key.pollEvents() ) {
                     @SuppressWarnings("unchecked")
                     WatchEvent<Path> wat = ( WatchEvent<Path> ) event;  // cast
-                    WatchEvent.Kind<?> kind = wat.kind();                  //
+                    WatchEvent.Kind<?> kind = wat.kind();               //
                     int ce = wat.count();                               //
                     Path path = wat.context();                          // name of path
-                    Path abs = dirEvent.resolve( path );                     // resolve against
+                    Path abs = dirEvent.resolve( path );                // resolve against
                     Log.warn( "Event '" + wat.kind() );
                     Log.info( abs + "'" );
 

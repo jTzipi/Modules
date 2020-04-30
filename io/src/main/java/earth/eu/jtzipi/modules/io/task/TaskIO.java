@@ -107,11 +107,12 @@ try {
     }
     /**
      * Coerce an unchecked Throwable to a RuntimeException.
-     * <p/>
+     * <p>
      * If the Throwable is an Error, throw it; if it is a
      * RuntimeException return it, otherwise throw IllegalStateException
-     *
+     * <p>
      * (c) Brian Goetz and Tim Peierls
+     *
      * @param t Throwable
      * @return specific
      */

@@ -19,10 +19,11 @@ package earth.eu.jtzipi.modules.io.image;
 /**
  * Simple Value Object for image dimension.
  * <p>
- *     Since there is no simple image dimension class  we create a simple value object for this.
- *     <br/>
- *     This class is immutable. So thread safe.
+ * Since there is no simple image dimension class  we create a simple value object for this.
+ * <br>
+ * This class is immutable. So thread safe.
  * </p>
+ *
  * @author jTzipi
  */
 public final class ImageDimension implements Comparable<ImageDimension> {
@@ -64,11 +65,11 @@ this(-1, -1 );
      * @throws IllegalArgumentException if {@code width} or {@code height} are &lt; 0
      */
     public static ImageDimension of( int width, int height ) {
-        if( 0 > width || 0 > height ) {
-            throw new IllegalArgumentException( "width[=+width+] or height[=+height+] are < 0" );
+        if ( 0 >= width || 0 >= height ) {
+            throw new IllegalArgumentException( "width[=" + width + "] or height[=" + height + "] are <= 0" );
         }
 
-        return new ImageDimension(width, height);
+        return new ImageDimension( width, height );
     }
 
     /**

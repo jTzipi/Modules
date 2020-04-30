@@ -165,6 +165,7 @@ public class RegularPathNode implements IPathNode, Comparable<IPathNode> {
         this.name = IOUtils.getPathDisplayName( path );
         this.desc = IOUtils.getPathTypeDescription( path );
         this.depth = path.getNameCount();
+
     }
 
     @Override

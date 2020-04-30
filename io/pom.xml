@@ -26,7 +26,7 @@
 <parent>
     <artifactId>Modules</artifactId>
     <groupId>earth.eu.jtzipi</groupId>
-    <version>1.0-SNAPSHOT</version>
+    <version>0.5.1</version>
 </parent>
 
     <dependencies>
@@ -46,7 +46,7 @@
         <dependency>
             <groupId>earth.eu.jtzipi</groupId>
             <artifactId>utils</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>0.5.1</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>

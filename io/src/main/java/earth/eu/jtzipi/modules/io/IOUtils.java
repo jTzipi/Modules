@@ -16,24 +16,22 @@
 
 package earth.eu.jtzipi.modules.io;
 
-import earth.eu.jtzipi.modules.io.image.ImageUtils;
-import javafx.embed.swing.SwingFXUtils;
+import earth.eu.jtzipi.modules.io.image.ImageType;
 import javafx.scene.image.Image;
 import javafx.scene.text.Font;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.swing.*;
 import javax.swing.filechooser.FileSystemView;
-import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.nio.file.*;
 import java.util.*;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
@@ -46,6 +44,10 @@ import static java.util.stream.Collectors.toList;
 public final class IOUtils {
 
     /**
+     * Return value for file size of not readable file.
+     */
+    public static final long FILE_NOT_READABLE = -5L;
+    /**
      * Accept hidden files.
      */
     public static final Predicate<Path> PATH_ACCEPT_HIDDEN = path -> {
@@ -55,18 +57,14 @@ public final class IOUtils {
             return false;
         }
     };
-
-
     /**
-     * Acronym unknown path name.
+     * File size for a file not readable.
      */
-    private static final String UNKNOWN_PATH_NAME = "<Unknown>";
-public static final long FILE_SIZE_UNKNOWN = -1L;
+    public static final long FILE_SIZE_UNKNOWN = -1L;
     /**
      * Minimal font size.
      */
     public static final double MIN_FONT_SIZE = 7D;
-
     /**
      * Default font size.
      */
@@ -75,13 +73,14 @@ public static final long FILE_SIZE_UNKNOWN = -1L;
      * Type image map.
      */
     public static final Map<String, String> IMG_TYPE_MAP = new HashMap<>();
-    /** Font map.*/
-    public static final Map<String, String> IMG_FONT_MAP = new HashMap<>();
+    /**
+     * Font map.
+     */
+    public static final Map<String, String> TYPE_FON_MAP = new HashMap<>();
     /**
      * Match all files path filer.
      */
     public static final DirectoryStream.Filter<Path> ACCEPT = path -> true;
-
     /**
      * Math all filter.
      */
@@ -91,13 +90,17 @@ public static final long FILE_SIZE_UNKNOWN = -1L;
      */
     public static final Predicate<Path> PATH_ACCEPT_DIR = path -> Files.isReadable( path ) && Files.isDirectory( path );
     /**
+     * Acronym unknown path name.
+     */
+    private static final String UNKNOWN_PATH_NAME = "<Unknown>";
+    /**
      * Acronym unknown path suffix.
      */
     private static final String UNKNOWN_PATH_SUFFIX = "";
     /**
      * Accept font files.
      */
-    public static final Predicate<Path> PATH_ACCEPT_FONT =  IOUtils::isFont;
+    public static final Predicate<Path> PATH_ACCEPT_FONT = IOUtils::isFont;
     /**
      * Accept image files.
      */
@@ -114,7 +117,6 @@ public static final long FILE_SIZE_UNKNOWN = -1L;
     // TODO: use MediaType
     static {
         IMG_TYPE_MAP.put( ".jpg", "JPEG Image" );
-
 
 
     }
@@ -146,6 +148,7 @@ public static final long FILE_SIZE_UNKNOWN = -1L;
 
     /**
      * Get file size for path safe.
+     *
      * @param path path
      * @return size or {@linkplain #FILE_SIZE_UNKNOWN}
      */
@@ -158,22 +161,13 @@ public static final long FILE_SIZE_UNKNOWN = -1L;
         } catch ( IOException e ) {
             ret = FILE_SIZE_UNKNOWN;
         }
-return ret;
+        return ret;
     }
 
-    /**
-     * Try to load system icon of path.
-     * @param path path
-     * @return image
-     */
-    public static Image loadSystemIcon( final Path path ) {
 
-        Icon icon = getPathSystemIcon( path );
-        BufferedImage bufImg = ImageUtils.iconToBufferedImage( icon );
-        return SwingFXUtils.toFXImage( bufImg, null );
-    }
     /**
      * Try to load image.
+     *
      * @param path path
      * @return image if loaded or empty
      */
@@ -187,18 +181,6 @@ return ret;
         }
 
     }
-
-    public static List<Image> streamAllImageFX( final Path path, boolean recursive ) throws IOException {
-
-        return Files.list( path )
-                .filter( PATH_ACCEPT_IMAGE )
-                .map( IOUtils::loadImageSafe )
-                .filter( Optional::isPresent )
-                .map( Optional::get )
-                .collect( Collectors.toList() );
-    }
-
-
 
     /**
      * Load a JavaFX font from path.
@@ -246,7 +228,7 @@ return ret;
         }
         Font font;
         try {
-            font = IOUtils.loadFont( path, size );
+            font = loadFont( path, size );
         } catch ( final IOException ioe ) {
             font = Font.getDefault();
         }
@@ -317,13 +299,16 @@ return ret;
 
     /**
      * Return system file icon.
+     *
      * @param path path to file
      * @return icon
+     * @throws NullPointerException if {@code path}
      */
     public static javax.swing.Icon getPathSystemIcon( final Path path ) {
-
+        Objects.requireNonNull( path );
         return FSV.getSystemIcon( path.toFile() );
     }
+
     /**
      * Return description of path system dependent.
      *
@@ -331,52 +316,53 @@ return ret;
      * @return description
      */
     public static String getPathTypeDescription( final Path path ) {
-
+        Objects.requireNonNull( path );
         return FSV.getSystemTypeDescription( path.toFile() );
     }
 
     /**
      * Stream zip dir.
-     * @param zipRoot path
-     * @param zipDirPath
-     * @return
+     *
+     * @param zipRoot    path
+     * @param zipDirPath relative zip path
+     * @return zip
      */
-    public static List<Path> streamZip( final Path zipRoot, final Path zipDirPath )  {
+    public static List<Path> streamZip( final Path zipRoot, final Path zipDirPath ) {
 
         FileSystem zfs = ZipUtils.getZipFilesystem( zipRoot );
-        if( null == zfs ) {
+        if ( null == zfs ) {
             return Collections.emptyList();
         }
-    List<Path> pL ;
+        List<Path> pL;
         try {
-           pL =   Files.list( zfs.getPath( zipDirPath.toString() ) ).collect( toList() );
+            pL = Files.list( zfs.getPath( zipDirPath.toString() ) ).collect( toList() );
         } catch ( IOException e ) {
 
             pL = Collections.emptyList();
         }
-return pL;
+        return pL;
     }
 
     /**
      * Stream content of a directory and return entries as list.
+     *
      * @param p path to dir
      * @return list of path's
      * @throws NullPointerException if
-     *
      */
-    public static List<Path> streamDir( final Path p )  {
+    public static List<Path> streamDir( final Path p ) {
         Objects.requireNonNull( p, "Path must not null" );
-        if(!Files.isReadable( p )) {
-LOG.warn( "Path '" + p + "' is not readable" );
+        if ( !Files.isReadable( p ) ) {
+            LOG.warn( "Path '" + p + "' is not readable" );
             return Collections.emptyList();
         }
-        if(!Files.isDirectory( p ) ) {
+        if ( !Files.isDirectory( p ) ) {
 
             throw new IllegalArgumentException( "You have to specify a directory" );
         }
 
         List<Path> pL;
-        try( Stream<Path> ps = Files.list( p ) ) {
+        try ( Stream<Path> ps = Files.list( p ) ) {
             pL = ps.collect( toList() );
         } catch ( final IOException ioE ) {
             LOG.warn( "IO E while streaming", ioE );
@@ -395,7 +381,7 @@ LOG.warn( "Path '" + p + "' is not readable" );
      * @see #lookupDir(Path, Predicate)
      */
     public static List<Path> lookupDir( final Path p ) {
-        return IOUtils.lookupDir( p, null );
+        return lookupDir( p, null );
     }
 
     /**
@@ -443,6 +429,96 @@ LOG.warn( "Path '" + p + "' is not readable" );
         }
 
         return nodeL;
+    }
+
+    /**
+     * Return all sub directories.
+     *
+     * @param path path to dir
+     * @return list of subdirectories or empty list
+     * @throws NullPointerException if {@code path} is null
+     */
+    public static List<Path> getSubDirsOf( Path path ) {
+
+        return lookupDir( path, PATH_ACCEPT_DIR );
+    }
+
+    /**
+     * Return image type.
+     *
+     * @param path path to image
+     * @return type if found or
+     * @throws IOException          if path can not be read
+     * @throws NullPointerException if {@code path} is null
+     */
+    public static ImageType determineImageType( final Path path ) throws IOException {
+        Objects.requireNonNull( path );
+        byte[] code = readBytes( path, 0, 50 );
+        ImageType imageType = ImageType.UNKNOWN;
+        for ( FileSig fileSig : FileSig.values() ) {
+
+            if ( fileSig.type() == FileSig.Type.IMAGE ) {
+
+                if ( fileSig.match( code ) ) {
+                    imageType = ImageType.of( fileSig );
+                    break;
+                }
+            }
+        }
+
+        return imageType;
+    }
+
+    /**
+     * Read
+     *
+     * @param path
+     * @param from
+     * @param until
+     * @return
+     * @throws IOException
+     */
+    public static byte[] readBytes( final Path path, final int from, final int until ) throws IOException {
+
+        FileChannel fileChannel = FileChannel.open( path, StandardOpenOption.READ );
+        ByteBuffer bb = fileChannel.map( FileChannel.MapMode.READ_ONLY, from, until );
+
+        byte[] ret = bb.array();
+        fileChannel.close();
+
+        return ret;
+    }
+
+    /**
+     * @param bytes
+     * @return
+     */
+    public static String toHex( byte[] bytes ) {
+        StringBuilder stringBuilder = new StringBuilder();
+
+        for ( int i = 0; i < bytes.length; i++ ) {
+            stringBuilder.append( String.format( "%02x", bytes[i] ) );
+        }
+
+        return stringBuilder.toString();
+    }
+
+    /**
+     * Return file size if readable or FILE_NOT_READABLE.
+     *
+     * @param path
+     * @return
+     */
+    public static long getFilSizeSafe( Path path ) {
+        Objects.requireNonNull( path );
+
+        try {
+            return Files.size( path );
+        } catch ( IOException ioE ) {
+
+            return FILE_NOT_READABLE;
+        }
+
     }
 
     /**
@@ -542,24 +618,40 @@ LOG.warn( "Path '" + p + "' is not readable" );
 
     /**
      * Load Properties from path.
+     *
      * @param pathToProp path
      * @return properties
-     * @throws IOException if not able to load
+     * @throws IOException          if not able to load
      * @throws NullPointerException if {@code pathToProp} is null
      */
     public static Properties loadProperties( final Path pathToProp ) throws IOException {
-
+        Objects.requireNonNull( pathToProp );
 
         Properties prop = new Properties();
 
-        try( InputStream inStream = Files.newInputStream( pathToProp )  ) {
-        prop.load( inStream );
+        loadProperties( pathToProp, prop );
+
+        return prop;
+    }
+
+    /**
+     * Load Properties from path.
+     *
+     * @param pathToProp path to properties
+     * @param prop       properties
+     * @throws IOException if {@code pathToProp} !readable
+     */
+    public static void loadProperties( final Path pathToProp, Properties prop ) throws IOException {
+
+        Objects.requireNonNull( pathToProp );
+
+        try ( InputStream inStream = Files.newInputStream( pathToProp ) ) {
+            prop.load( inStream );
         } catch ( final IOException ioE ) {
 
             throw ioE;
         }
 
-        return prop;
     }
 
     /**
@@ -579,14 +671,16 @@ LOG.warn( "Path '" + p + "' is not readable" );
 
     /**
      * Return true if path denote to a font.
+     *
      * @param path path
      * @return {@code true} if path may be a font
      */
     public static boolean isFont( final Path path ) {
         String su = getPathSuffixSafe( path );
 
-        return null == path ? false : IMG_FONT_MAP.containsKey( su.toLowerCase() );
+        return null == path ? false : TYPE_FON_MAP.containsKey( su.toLowerCase() );
     }
+
     private static FileSystem createZipFileSys( Path zipPath ) throws URISyntaxException, IOException {
         // create a jar
         URI uri = new URI( "jar", zipPath.toUri().toString(), null );

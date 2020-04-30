@@ -33,14 +33,15 @@ import java.util.function.Predicate;
 /**
  * Callable for searching paths in a dir and its sub dirs.
  * <p>
- *     This path find task traverses all sub dirs of a root dir adding
- *     path's to a list matching certain predicate.
- *     <br/>
- *     When all directories are traversed a list of found paths returned.
- *     <br/>
- *
- *     There is no handling of intermediate results.
+ * This path find task traverses all sub dirs of a root dir adding
+ * path's to a list matching certain predicate.
+ * <br>
+ * When all directories are traversed a list of found paths returned.
+ * <br>
+ * <p>
+ * There is no handling of intermediate results.
  * </p>
+ *
  * @author jTzipi
  */
 public class FindPathTask implements Callable<List<Path>> {
