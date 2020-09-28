@@ -14,15 +14,14 @@
  *    limitations under the License.
  */
 
-package earth.eu.jtzipi.modules.io.image;
+package earth.eu.jtzipi.modules.fx.canvas;
 
-import java.awt.image.BufferedImage;
+public abstract class AbstractAnimatedSkin<C extends AbstractAnimatedWidget> extends AbstractBasicSkin<C> {
 
-public class BufferedImages {
 
-    public static final BufferedImage drawGradient(final int width, final int height) {
-
-        return GraphicsUtilities.createCompatibleImage( width, height );
+    AbstractAnimatedSkin( final C c ) {
+        super( c );
     }
 
+    public abstract void register();
 }

@@ -31,12 +31,13 @@ public final class Utils {
 
     /**
      * Clamp a given number to  [min max].
+     *
      * @param val value
      * @param min min inclusive
      * @param max max inclusive
      * @param <T> type of number
      * @return clamped value
-     * @throws NullPointerException if
+     * @throws NullPointerException if {@code val}|{@code min}|{@code max} are null
      */
     public static <T extends Number & Comparable<? super T>>  T clamp( T val, T min, T max) {
         Objects.requireNonNull(val, "value is null");

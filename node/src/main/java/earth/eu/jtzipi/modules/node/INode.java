@@ -22,14 +22,14 @@ import java.util.function.Predicate;
 /**
  * Node basic architecture.
  * <p>
- *  *  Each node has a
- *  *  <ul>
- *  *      <li>parent node (which maybe null in case of root)</li>
- *  *      <li>list of sub nodes (which maybe empty)</li>
- *  *      <li>value</li>
- *  *      <li>property leaf</li>
- *  *  </ul>
- *  *</p>
+ * ach node has a
+ * <ul>
+ *     <li>parent node (which maybe null in case of root)</li>
+ *     <li>list of sub nodes (which maybe empty)</li>
+ *     <li>value</li>
+ *     <li>property leaf</li>
+ * </ul>
+ *
  * @param <T> type of content
  * @author jTzipi
  */
@@ -65,5 +65,5 @@ public interface INode<T> {
      * @param predicate filter
      * @return sub node
      */
-    List<? extends INode<T>> getSubnodes( Predicate<T> predicate );
+    List<? extends INode<T>> getSubnodes( Predicate<? super T> predicate );
 }

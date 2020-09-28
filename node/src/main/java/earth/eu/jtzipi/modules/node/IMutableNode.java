@@ -24,9 +24,10 @@ public interface IMutableNode<T> extends INode<T> {
 
     /**
      * Add node to this node's sub nodes.
+     *
      * @param node node
      * @return index
-     * @throws NullPointerException
+     * @throws NullPointerException if {@code node} is null
      */
     boolean addNode( INode<T> node );
 

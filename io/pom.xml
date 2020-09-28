@@ -21,13 +21,13 @@
     <modelVersion>4.0.0</modelVersion>
 
 
-    <artifactId>io</artifactId>
+    <artifactId>modules-io</artifactId>
 
-<parent>
-    <artifactId>Modules</artifactId>
-    <groupId>earth.eu.jtzipi</groupId>
-    <version>0.5.1</version>
-</parent>
+    <parent>
+        <artifactId>modules</artifactId>
+        <groupId>earth.eu.jtzipi.modules</groupId>
+        <version>0.5.1</version>
+    </parent>
 
     <dependencies>
         <dependency>
@@ -44,9 +44,19 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>earth.eu.jtzipi</groupId>
-            <artifactId>utils</artifactId>
-            <version>0.5.1</version>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-graphics</artifactId>
+        </dependency>
+
+
+        <dependency>
+            <groupId>earth.eu.jtzipi.modules</groupId>
+            <artifactId>modules-utils</artifactId>
+            <version>${project.version}</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>

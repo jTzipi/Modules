@@ -18,6 +18,7 @@ package earth.eu.jtzipi.modules.node.path;
 
 import earth.eu.jtzipi.modules.node.INode;
 
+
 import java.nio.file.Path;
 import java.nio.file.attribute.FileTime;
 import java.text.Collator;
@@ -30,7 +31,7 @@ import java.util.function.Predicate;
  *     A path node is a node with a {@link java.nio.file.Path} value.
  *     <br>
  *
- *     TODO: IOException
+ *
  * </p>
  *
  * @author jTzipi
@@ -56,11 +57,51 @@ public interface IPathNode extends INode<Path> {
      * If this path name is not readable.
      */
     String PATH_NOT_READABLE = "<Not readable>";
+    /**
+     * Accept all path node.
+     */
+    Predicate<IPathNode> ACCEPT_ALL = pathNode -> true;
+    /**
+     * Accept directory path node.
+     * This include linked and hidden dirs.
+     */
+    Predicate<IPathNode> ACCEPT_DIR = IPathNode::isDir;
+    /**
+     * Accept visible directory path node.
+     * This include linked dirs.
+     */
+    Predicate<IPathNode> ACCEPT_DIR_VISIBLE = ACCEPT_DIR.and( pathNode -> !pathNode.isHidden() );
+
+    /**
+     * Accept visible and not linked directory.
+     */
+    Predicate<IPathNode> ACCEPT_DIR_VISIBLE_NO_LINK = ACCEPT_DIR_VISIBLE.and( pathNode -> !pathNode.isLink() );
+
+    /**
+     *
+     */
+    Predicate<IPathNode> ACCEPT_DIR_NOT_LINKED = ACCEPT_DIR.and( pathNode -> !pathNode.isLink() );
+    /**
+     * Accept files readable and existing.
+     */
+    Predicate<IPathNode> ACCEPT_FILE = IPathNode::isReadable;
+
+    /**
+     * Accept files visible and readable.
+     */
+    Predicate<IPathNode> ACCEPT_FILE_VISIBLE = ACCEPT_FILE.and( pathNode -> !pathNode.isHidden() );
+
+    /**
+     * Accept files visible readable and not link.
+     */
+    Predicate<IPathNode> ACCEPT_FILE_REGULAR = ACCEPT_FILE_VISIBLE.and( pathNode -> !pathNode.isLink() );
 
     /**
      * Create a list of nodes until the root.
+     *
      * @param node node to create the path
      * @return list of path nodes to root
+     * @throws NullPointerException if {@code node}
      */
     static List<IPathNode> getPathToRoot( IPathNode node ) {
         Objects.requireNonNull( node );
@@ -155,7 +196,7 @@ public interface IPathNode extends INode<Path> {
      * @param predicate filter
      * @return list of path
      */
-    List<IPathNode> getSubnodes( Predicate<Path> predicate );
+    List<IPathNode> getSubnodes( Predicate<? super Path> predicate );
 
     /**
      * Return time of creation if readable.

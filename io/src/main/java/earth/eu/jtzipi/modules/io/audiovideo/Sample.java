@@ -14,11 +14,17 @@
  *    limitations under the License.
  */
 
-package earth.eu.jtzipi.modules.utils;
+package earth.eu.jtzipi.modules.io.audiovideo;
 
-class UtilsTest {
+public enum Sample {
 
-    @org.junit.jupiter.api.Test
-    void clamp() {
+    KILO_16( 16 ),
+    KILO_32( 32 ),
+    KILO_48( 48 ),
+    KILO_96( 96 ),
+    ;
+
+    Sample( int rate ) {
+
     }
 }

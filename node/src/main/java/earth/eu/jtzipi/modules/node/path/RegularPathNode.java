@@ -47,14 +47,14 @@ public class RegularPathNode implements IPathNode, Comparable<IPathNode> {
     private static final Logger LOG = LoggerFactory.getLogger( "PathNode" );
 
 
-
-
-    /** parent node. If null root. */
-    private IPathNode parent;
+    /**
+     * parent node. If null root.
+     */
+    private final IPathNode parent;
     /**
      * path to this node.
      */
-    private Path path;
+    private final Path path;
     /**
      * Path is hidden.
      */
@@ -105,15 +105,17 @@ public class RegularPathNode implements IPathNode, Comparable<IPathNode> {
      * File Time (optional) .
      */
     FileTime ftc;
+
     /**
      * PathNode main.
-     * @param path path
+     *
+     * @param filepath       path
      * @param parentPathNode parent path
      */
-    RegularPathNode( final Path path, final IPathNode parentPathNode ) {
+    RegularPathNode( final Path filepath, final IPathNode parentPathNode ) {
 
         this.parent = parentPathNode;
-        this.path = path;
+        this.path = filepath;
     }
 
     /**
@@ -142,10 +144,12 @@ public class RegularPathNode implements IPathNode, Comparable<IPathNode> {
             this.length = dir? DIR_LENGTH : attrs.size( );
 
             ftc = attrs.creationTime();
+
         } catch ( IOException e ) {
 
             this.length = 0L;
             ftc = FileTime.fromMillis( 0L );
+            LOG.warn( "Can't read file time '" + path + "'", e );
         }
         try{
             this.type = Files.probeContentType( path );
@@ -165,6 +169,7 @@ public class RegularPathNode implements IPathNode, Comparable<IPathNode> {
         this.name = IOUtils.getPathDisplayName( path );
         this.desc = IOUtils.getPathTypeDescription( path );
         this.depth = path.getNameCount();
+        this.link = Files.isSymbolicLink( path );
 
     }
 
@@ -215,14 +220,13 @@ public class RegularPathNode implements IPathNode, Comparable<IPathNode> {
     }
 
     @Override
-    public List<IPathNode> getSubnodes( Predicate<Path> pp ) {
+    public List<IPathNode> getSubnodes( Predicate<? super Path> pp ) {
         if ( !isDir() ) {
             return Collections.emptyList();
         }
         Objects.requireNonNull( pp );
         // if not created
-        if( !subNodesCreated ) {
-
+        if ( !isCreated() ) {
 
 
             this.subNodeL = IOUtils.lookupDir( getValue(), pp )
@@ -236,6 +240,11 @@ public class RegularPathNode implements IPathNode, Comparable<IPathNode> {
         return this.subNodeL;
     }
 
+    /**
+     * Are sub nodes created.
+     *
+     * @return {@code true} if sub nodes are created
+     */
     boolean isCreated() {
         return this.subNodesCreated;
     }

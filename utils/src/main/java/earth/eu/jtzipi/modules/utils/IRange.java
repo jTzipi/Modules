@@ -14,15 +14,7 @@
  *    limitations under the License.
  */
 
-package earth.eu.jtzipi.modules.io.image;
+package earth.eu.jtzipi.modules.utils;
 
-import java.awt.image.BufferedImage;
-
-public class BufferedImages {
-
-    public static final BufferedImage drawGradient(final int width, final int height) {
-
-        return GraphicsUtilities.createCompatibleImage( width, height );
-    }
-
+public interface IRange {
 }

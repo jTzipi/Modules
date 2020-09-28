@@ -15,17 +15,17 @@
   ~    limitations under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>earth.eu.jtzipi</groupId>
-    <artifactId>Modules</artifactId>
+    <groupId>earth.eu.jtzipi.modules</groupId>
+    <artifactId>modules</artifactId>
     <version>0.5.1</version>
     <packaging>pom</packaging>
     <name>Modules</name>
-
+    <description>Modules parent pom.</description>
 
 
     <modules>
@@ -51,9 +51,17 @@
 
     <properties>
 
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!-- JUnit 5 -->
+        <junitversion>5.5.2</junitversion>
+        <!-- Apache Common Condec -->
+        <apccodecversion>1.14</apccodecversion>
+        <!-- Slf4J -->
+        <slf4jversion>1.7.28</slf4jversion>
+        <!-- JavaFX -->
+        <fxversion>11.0.2</fxversion>
     </properties>
 
     <dependencyManagement>
@@ -63,26 +71,56 @@
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
-                <version>1.7.28</version>
+                <version>${slf4jversion}</version>
             </dependency>
             <!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-simple -->
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-simple</artifactId>
-                <version>1.7.28</version>
+                <version>${slf4jversion}</version>
             </dependency>
             <!-- junit -->
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter-api</artifactId>
-                <version>5.5.2</version>
+                <version>${junitversion}</version>
                 <scope>test</scope>
             </dependency>
+
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter</artifactId>
-                <version>5.5.2</version>
+                <version>${junitversion}</version>
                 <scope>test</scope>
+            </dependency>
+            <!-- https://mvnrepository.com/artifact/commons-codec/commons-codec -->
+            <dependency>
+                <groupId>commons-codec</groupId>
+                <artifactId>commons-codec</artifactId>
+                <version>${apccodecversion}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-base</artifactId>
+                <version>${fxversion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-controls</artifactId>
+                <version>${fxversion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-graphics</artifactId>
+                <version>${fxversion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-media</artifactId>
+                <version>${fxversion}</version>
             </dependency>
 
         </dependencies>

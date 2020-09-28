@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2019 Tim Langhammer
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
+
 package earth.eu.jtzipi.modules.io.image;
 
 
@@ -16,26 +32,27 @@ public enum ImageType {
     /**
      * GIF.
      */
-    GIF( 1L, "Graphic", "gif" ),
+    GIF( 1L, "Graphic", "image/gif", "gif" ),
+    /**
+     * JPG.
+     */
+    JPEG( 2L, "Joint Picture", "image/jpg", "jpg", "jpeg", "jpe", "jif", "jfif", "jfi" ),
     /**
      *
      */
-    JPEG( 2L, "Joint Picture", "jpg", "jpeg", "jpe", "jif", "jfif", "jfi" ),
+    PNG( 4L, "Portable Network Graphic", "image/png", "png" ),
     /**
      *
      */
-    PNG( 4L, "Portable", "png" ),
+    BMP( 10L, "Bitmap", "image/bmp", "bmp" ),
     /**
      *
      */
-    BMP( 10L, "Bitmap", "bmp" ),
-    /**
-     *
-     */
-    UNKNOWN( 0L, "Unknown Format", "" );
+    UNKNOWN( 0L, "Unknown Format", "application/octet-stream", "" );
 
     private final long i;
     private final String d;
+    private final String mime;
     private final List<String> suffixL;
 
     /**
@@ -43,9 +60,10 @@ public enum ImageType {
      * @param desc   description
      * @param suffix one to many suffice
      */
-    ImageType( long icon, final String desc, final String... suffix ) {
+    ImageType( long icon, final String desc, String mime, final String... suffix ) {
         this.i = icon;
         this.d = desc;
+        this.mime = mime;
         this.suffixL = Arrays.asList( suffix );
     }
 
@@ -86,6 +104,18 @@ public enum ImageType {
         return itype;
     }
 
+    /**
+     * Return mime type of image.
+     *
+     * @return mime type
+     */
+    public String getMime() {
+        return mime;
+    }
+
+    /**
+     * @return
+     */
     public String getDesc() {
         return d;
     }

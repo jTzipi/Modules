@@ -22,18 +22,21 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
 
-final class NodeProvider  {
+final class NodeProvider {
+
+    private NodeProvider() {
+
+    }
 
     public static IPathNode create( Path path, IPathNode parentPathNode ) {
-        Objects.requireNonNull(path);
+        Objects.requireNonNull( path );
 
-        if(!Files.isReadable(path)) {
-    NotReadablePathNode nrn = new NotReadablePathNode( path, parentPathNode);
-    nrn.init(path);
-            return nrn;
+        if ( !Files.isReadable( path ) ) {
+
+            return NotReadablePathNode.of( path, parentPathNode );
         }
 
-        String sfx = IOUtils.getPathSuffixSafe(path);
+        String sfx = IOUtils.getPathSuffixSafe( path );
 
         IPathNode node;
 

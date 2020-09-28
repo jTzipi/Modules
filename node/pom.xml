@@ -21,20 +21,20 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <artifactId>Modules</artifactId>
-        <groupId>earth.eu.jtzipi</groupId>
+        <artifactId>modules</artifactId>
+        <groupId>earth.eu.jtzipi.modules</groupId>
         <version>0.5.1</version>
     </parent>
 
-    <artifactId>node</artifactId>
+    <artifactId>modules-node</artifactId>
 
 
     <dependencies>
 
         <dependency>
-            <groupId>earth.eu.jtzipi</groupId>
-            <artifactId>io</artifactId>
-            <version>0.5.1</version>
+            <groupId>earth.eu.jtzipi.modules</groupId>
+            <artifactId>modules-io</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>

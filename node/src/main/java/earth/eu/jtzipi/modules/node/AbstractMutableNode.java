@@ -21,6 +21,11 @@ import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+/**
+ * Base class for mutable nodes.
+ *
+ * @param <T> type
+ */
 public abstract class AbstractMutableNode<T> implements IMutableNode<T> {
 
     protected INode<T> parentNode;
@@ -68,8 +73,8 @@ public abstract class AbstractMutableNode<T> implements IMutableNode<T> {
     }
 
     @Override
-    public List<? extends INode<T>> getSubnodes( Predicate<T> predicate ) {
-        return subL.stream().filter( nd -> predicate.test( nd.getValue() )).collect( Collectors.toList() );
+    public List<? extends INode<T>> getSubnodes( Predicate<? super T> predicate ) {
+        return subL.stream().filter( nd -> predicate.test( nd.getValue() ) ).collect( Collectors.toList() );
     }
 
     protected abstract void createSubNodeList();

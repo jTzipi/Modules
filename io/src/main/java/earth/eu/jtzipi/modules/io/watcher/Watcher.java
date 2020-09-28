@@ -32,7 +32,7 @@ import static java.nio.file.StandardWatchEventKinds.*;
  * Basically a wrapper for {@linkplain WatchService}
  * </p>
  *
- * @author
+ * @author jTzipi
  */
 public final class Watcher {
 
@@ -110,7 +110,7 @@ public final class Watcher {
             throw new IOException( "Path '" + path + "' seems to be not of type directory" );
         }
 
-        WatchTask watchTask = new WatchTask( traceProp, recursiveProp, watchEventHandler, eventType );
+        IWatchTask watchTask = new WatchTask( traceProp, recursiveProp, watchEventHandler, eventType );
         watchTask.register( path );
 
 
@@ -131,12 +131,7 @@ public final class Watcher {
     }
 
 
-    public interface WatchBar {
 
-        List<Path> errorList();
-
-
-    }
 
     /**
      * Watch Task.
@@ -331,7 +326,7 @@ public final class Watcher {
 
 
             try {
-                Files.walkFileTree( dir, new SimpleFileVisitor<Path>() {
+                Files.walkFileTree( dir, new SimpleFileVisitor<>() {
                     @Override
                     public FileVisitResult preVisitDirectory( Path dirPath, BasicFileAttributes attrs ) {
 

@@ -23,6 +23,7 @@ import java.nio.file.Path;
 import java.nio.file.attribute.FileTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
 
@@ -40,12 +41,27 @@ public final class NotReadablePathNode implements IPathNode, Comparable<IPathNod
      * @param path       path
      * @param parentNode parent node
      */
-     NotReadablePathNode( final Path path, final IPathNode parentNode ) {
+    NotReadablePathNode( final Path path, final IPathNode parentNode ) {
         this.path = path;
         this.parent = parentNode;
     }
 
-    void init( Path path ) {
+    /**
+     * Create instance of NotReadablePathNode.
+     *
+     * @param path       path
+     * @param parentNode parent
+     * @return created node
+     */
+    public static NotReadablePathNode of( Path path, final IPathNode parentNode ) {
+        Objects.requireNonNull( path );
+        NotReadablePathNode pathNode = new NotReadablePathNode( path, parentNode );
+        pathNode.init( path );
+
+        return pathNode;
+    }
+
+    private void init( Path path ) {
 
         name = IOUtils.getPathDisplayName( path );
         desc = IOUtils.getPathTypeDescription( path );
@@ -98,7 +114,7 @@ public final class NotReadablePathNode implements IPathNode, Comparable<IPathNod
     }
 
     @Override
-    public List<IPathNode> getSubnodes( Predicate<Path> predicate ) {
+    public List<IPathNode> getSubnodes( Predicate<? super Path> predicate ) {
         return Collections.emptyList();
     }
 
@@ -120,6 +136,26 @@ public final class NotReadablePathNode implements IPathNode, Comparable<IPathNod
     @Override
     public Path getValue() {
         return path;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = path.hashCode();
+        result = 31 * result + ( name != null ? name.hashCode() : 0 );
+        result = 31 * result + ( desc != null ? desc.hashCode() : 0 );
+        return result;
+    }
+
+    @Override
+    public boolean equals( Object o ) {
+        if ( this == o ) return true;
+        if ( o == null || getClass() != o.getClass() ) return false;
+
+        NotReadablePathNode that = ( NotReadablePathNode ) o;
+
+        if ( !path.equals( that.path ) ) return false;
+        if ( name != null ? !name.equals( that.name ) : that.name != null ) return false;
+        return desc != null ? desc.equals( that.desc ) : that.desc == null;
     }
 
     @Override

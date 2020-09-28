@@ -190,7 +190,7 @@ public class ZipPathNode implements IPathNode, Comparable<ZipPathNode> {
 
 
     @Override
-    public List<IPathNode> getSubnodes( Predicate<Path> predicate ) {
+    public List<IPathNode> getSubnodes( Predicate<? super Path> predicate ) {
 
         if ( !subNodesCreated ) {
 

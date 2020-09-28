@@ -19,10 +19,10 @@ package earth.eu.jtzipi.modules.io;
 import earth.eu.jtzipi.modules.io.image.ImageType;
 import javafx.scene.image.Image;
 import javafx.scene.text.Font;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.filechooser.FileSystemView;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -31,6 +31,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.file.*;
 import java.util.*;
+import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -65,10 +66,7 @@ public final class IOUtils {
      * Minimal font size.
      */
     public static final double MIN_FONT_SIZE = 7D;
-    /**
-     * Default font size.
-     */
-    public static final double DEFAULT_FONT_SIZE = 14D;
+
     /**
      * Type image map.
      */
@@ -112,7 +110,7 @@ public final class IOUtils {
     // for creating zip archives
     private static final Map<String, Boolean> ZIP_FS_MAP = Collections.singletonMap( "create", true );
 
-    private static final Logger LOG = LoggerFactory.getLogger( "IOUtils" );
+    private static final org.slf4j.Logger LOG = LoggerFactory.getLogger( "IOUtils" );
 
     // TODO: use MediaType
     static {
@@ -151,9 +149,10 @@ public final class IOUtils {
      *
      * @param path path
      * @return size or {@linkplain #FILE_SIZE_UNKNOWN}
+     * @throws NullPointerException if
      */
     public static long getFileSizeSafe( final Path path ) {
-
+        Objects.requireNonNull( path );
         long ret;
 
         try {
@@ -170,6 +169,7 @@ public final class IOUtils {
      *
      * @param path path
      * @return image if loaded or empty
+     * @throws NullPointerException if {@code path} is null
      */
     public static Optional<Image> loadImageSafe( final Path path ) {
 
@@ -188,7 +188,8 @@ public final class IOUtils {
      * @param path path
      * @param size size
      * @return Font object
-     * @throws IOException io loading font or {@code path} is not readable
+     * @throws IOException          io loading font or {@code path} is not readable
+     * @throws NullPointerException if {@code path} is null
      */
     public static Font loadFont( final Path path, final double size ) throws IOException {
         Objects.requireNonNull( path );
@@ -220,6 +221,7 @@ public final class IOUtils {
      * @param path path to font
      * @param size font size
      * @return font or system default
+     * @throws NullPointerException if {@code path} is null
      */
     public static Font loadFontSafe( final Path path, double size ) {
         Objects.requireNonNull( path );
@@ -290,7 +292,7 @@ public final class IOUtils {
      *
      * @param path path to file
      * @return file name
-     * @throws NullPointerException
+     * @throws NullPointerException if {@code path} null
      */
     public static String getPathDisplayName( final Path path ) {
         Objects.requireNonNull( path );
@@ -396,7 +398,7 @@ public final class IOUtils {
      * @throws NullPointerException {@code p} is {@code null}
      * @see #lookupDir(Path)
      */
-    public static List<Path> lookupDir( final Path p, Predicate<Path> pathPredicate ) {
+    public static List<Path> lookupDir( final Path p, Predicate<? super Path> pathPredicate ) {
         Objects.requireNonNull( p );
 
         if ( !Files.isReadable( p ) ) {
@@ -419,7 +421,7 @@ public final class IOUtils {
         try ( final DirectoryStream<Path> ds = Files.newDirectoryStream( p, filter ) ) {
 
             for ( final Path path : ds ) {
-                System.out.println( "Gadi : [" + path.toString() + "]" );
+                System.out.println( "Gadi : [" + path + "]" );
                 nodeL.add( path );
             }
 
@@ -473,10 +475,10 @@ public final class IOUtils {
      * Read
      *
      * @param path
-     * @param from
-     * @param until
-     * @return
-     * @throws IOException
+     * @param from position from &ge;0
+     * @param until position until &gt;0
+     * @return bytes read
+     * @throws IOException if read fail
      */
     public static byte[] readBytes( final Path path, final int from, final int until ) throws IOException {
 
@@ -490,14 +492,14 @@ public final class IOUtils {
     }
 
     /**
-     * @param bytes
-     * @return
+     * @param bytes bytes to read
+     * @return hexadecimal value
      */
     public static String toHex( byte[] bytes ) {
         StringBuilder stringBuilder = new StringBuilder();
 
-        for ( int i = 0; i < bytes.length; i++ ) {
-            stringBuilder.append( String.format( "%02x", bytes[i] ) );
+        for ( byte aByte : bytes ) {
+            stringBuilder.append( String.format( "%02x", aByte ) );
         }
 
         return stringBuilder.toString();
@@ -506,8 +508,8 @@ public final class IOUtils {
     /**
      * Return file size if readable or FILE_NOT_READABLE.
      *
-     * @param path
-     * @return
+     * @param path to read
+     * @return file size in byte
      */
     public static long getFilSizeSafe( Path path ) {
         Objects.requireNonNull( path );
@@ -535,9 +537,7 @@ public final class IOUtils {
         if ( !Files.isReadable( path ) ) {
             throw new IOException( "Path '" + path + "' is not readable" );
         }
-        if ( null == path ) {
-            return UNKNOWN_PATH_NAME;
-        }
+
         String[] temp = split( path.getFileName().toString() );
         return 0 == temp.length ? UNKNOWN_PATH_NAME : temp[0];
     }
@@ -602,7 +602,7 @@ public final class IOUtils {
      * Read file suffix for path ignoring io error.
      *
      * @param path path
-     * @return
+     * @return suffix of path or
      */
     public static String getPathSuffixSafe( final Path path ) {
         String suffix = UNKNOWN_PATH_SUFFIX;
@@ -649,6 +649,7 @@ public final class IOUtils {
             prop.load( inStream );
         } catch ( final IOException ioE ) {
 
+            LOG.error( "Fail to load proper,", ioE );
             throw ioE;
         }
 
@@ -665,8 +666,8 @@ public final class IOUtils {
      */
     public static boolean isImage( final Path path ) {
         String su = getPathSuffixSafe( path );
-        // LOG.warn( "Suffix " + su );
-        return null == path ? false : IMG_TYPE_MAP.containsKey( su.toLowerCase() );
+
+        return null != path && IMG_TYPE_MAP.containsKey( su.toLowerCase() );
     }
 
     /**
@@ -678,7 +679,7 @@ public final class IOUtils {
     public static boolean isFont( final Path path ) {
         String su = getPathSuffixSafe( path );
 
-        return null == path ? false : TYPE_FON_MAP.containsKey( su.toLowerCase() );
+        return null != path && TYPE_FON_MAP.containsKey( su.toLowerCase() );
     }
 
     private static FileSystem createZipFileSys( Path zipPath ) throws URISyntaxException, IOException {
@@ -700,84 +701,6 @@ public final class IOUtils {
         ret[1] = lastDot > 0 ? fileName.substring( lastDot ) : "";
 
         return ret;
-    }
-
-    /**
-     * Operation System.
-     */
-    public enum OS {
-
-        /**
-         * Linux Unix.
-         */
-        LINUX( "/" ),
-        /**
-         * Windows.
-         */
-        WINDOWS( System.getenv( "COMPUTERNAME" ) ),
-        /**
-         * DOS.
-         */
-        DOS( "C:" ),
-        /**
-         * MacOS.
-         */
-        MAC( "/" ),
-        /**
-         * Solaris.
-         */
-        SOLARIS( "/" ),
-        /**
-         * Other.
-         */
-        OTHER( null );
-        // root path
-        private final String path;
-
-        /**
-         * Operating System.
-         *
-         * @param rootPathStr path to root
-         */
-        OS( final String rootPathStr ) {
-            this.path = rootPathStr;
-        }
-
-        /**
-         * Try to determine <b>this</b> OS reading System property 'os.name'.
-         *
-         * @return OS
-         */
-        public static OS getSystemOS() {
-            String ostr = System.getProperty( "os.name" ).toLowerCase();
-            LOG.info( "os " + ostr );
-            OS os;
-            // Linux Unix
-            if ( ostr.matches( ".*(nix|nux|aix).*" ) ) {
-                os = LINUX;
-            } else if ( ostr.matches( ".*sunos.*" ) ) {
-                os = SOLARIS;
-            } else if ( ostr.matches( ".*mac.*" ) ) {
-                os = MAC;
-            } else if ( ostr.matches( ".*win.*" ) ) {
-                os = WINDOWS;
-            } else if ( ostr.matches( ".*dos.*" ) ) {
-                os = DOS;
-            } else {
-                os = OTHER;
-            }
-
-            return os;
-        }
-
-        /**
-         * Root path.
-         *
-         * @return path to system root
-         */
-        public String getRootPath() {
-            return path;
-        }
     }
 
 }
