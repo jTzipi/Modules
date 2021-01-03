@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Tim Langhammer
+ * Copyright (c) 2021 Tim Langhammer
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ public enum AudioType {
     OGG( 4L, "Ogg Vorbis", "audio/ogg", "ogg" ),
 
     FLAC( 12L, "F lossless audio codec", "audio/fla", "flac" ),
-    UNKNOWN( 0l, "", "", "" );
+    UNKNOWN( 0L, "", "", "" );
 
     private final long id;
     private final String desc;
@@ -44,12 +44,14 @@ public enum AudioType {
     private final List<String> suffixL;
 
     /**
+     * Audio Type.
+     *
      * @param id      id
-     * @param desc    desc
-     * @param mime    mime type
-     * @param suffice suffices
+     * @param desc    description
+     * @param mime    mime
+     * @param suffice file suffix
      */
-    AudioType( long id, String desc, String mime, String... suffice ) {
+    AudioType( final long id, final String desc, final String mime, final String... suffice ) {
         this.id = id;
         this.desc = desc;
         this.mime = mime;

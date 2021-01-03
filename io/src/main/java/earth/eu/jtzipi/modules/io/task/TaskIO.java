@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Tim Langhammer
+ * Copyright (c) 2021 Tim Langhammer
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ public final class TaskIO {
     /**
      * Default Executor.
      */
-    private static ExecutorService FIXED_THREAD = Executors.newFixedThreadPool( CPUS );
+    private static final ExecutorService FIXED_THREAD = Executors.newFixedThreadPool( CPUS );
 
     private TaskIO() { throw new AssertionError(""); }
     /**
@@ -56,17 +56,17 @@ public final class TaskIO {
      * @param ser          Executor service
      * @return map with path keys and Futures of async computation of path
      */
-    public static Map<Path, Future<List<Path>>> searchAsFuture( final List<Path> rootPathList, Predicate<Path> pathPred, ExecutorService ser ) {
+    public static Map<Path, Future<List<Path>>> searchAsFuture( final List<Path> rootPathList, final Predicate<Path> pathPred, ExecutorService ser ) {
         Objects.requireNonNull( rootPathList, "root path" );
 
-        if( null == ser ) {
+        if ( null == ser ) {
             ser = FIXED_THREAD;
         }
 
-        Map<Path, Future<List<Path>>> futureLM = new HashMap<>();
-        for ( Path dir : rootPathList ) {
+        final Map<Path, Future<List<Path>>> futureLM = new HashMap<>();
+        for ( final Path dir : rootPathList ) {
             try {
-                FindPathTask fpt = FindPathTask.of( dir, pathPred );
+                final FindPathTask fpt = FindPathTask.of( dir, pathPred );
                 futureLM.put( dir, ser.submit( fpt ) );
             } catch ( final IOException ioE ) {
                 futureLM.put( dir, null );
@@ -90,17 +90,15 @@ public final class TaskIO {
      * @param ser
      * @return
      */
-    public static List<Future<?>> search( final List<Path> rootPathList, Predicate<Path> pathPred, BlockingQueue<Path> sharedQ, ExecutorService ser ) {
+    public static List<Future<?>> search( final Iterable<Path> rootPathList, final Predicate<Path> pathPred, final BlockingQueue<Path> sharedQ, final ExecutorService ser ) {
 
 
-        List<Future<?>> ret = new ArrayList<>();
-        for( Path path : rootPathList ) {
-try {
-    PathCrawler pc = PathCrawler.of( path, pathPred, sharedQ );
-    ret.add( ser.submit( pc ) );
-} catch ( final IOException ioE ) {
+        final List<Future<?>> ret = new ArrayList<>();
+        for ( final Path path : rootPathList ) {
 
-}
+            final PathCrawler pc = PathCrawler.of( path, pathPred, sharedQ );
+            ret.add( ser.submit( pc ) );
+
         }
 
         return ret;
@@ -116,13 +114,13 @@ try {
      * @param t Throwable
      * @return specific
      */
-    public static RuntimeException launderThrowable(Throwable t) {
-        if (t instanceof RuntimeException) {
-            return (RuntimeException) t;
-        } else if (t instanceof Error) {
-            throw (Error) t;
+    public static RuntimeException launderThrowable( final Throwable t ) {
+        if ( t instanceof RuntimeException ) {
+            return ( RuntimeException ) t;
+        } else if ( t instanceof Error ) {
+            throw ( Error ) t;
         } else {
-            throw new IllegalStateException("Not unchecked", t);
+            throw new IllegalStateException( "Not unchecked", t );
         }
     }
 }

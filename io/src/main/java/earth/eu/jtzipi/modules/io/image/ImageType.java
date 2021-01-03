@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Tim Langhammer
+ * Copyright (c) 2021 Tim Langhammer
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ public enum ImageType {
      */
     JPEG( 2L, "Joint Picture", "image/jpg", "jpg", "jpeg", "jpe", "jif", "jfif", "jfi" ),
     /**
-     *
+     * JPG.
      */
     PNG( 4L, "Portable Network Graphic", "image/png", "png" ),
     /**
@@ -60,7 +60,7 @@ public enum ImageType {
      * @param desc   description
      * @param suffix one to many suffice
      */
-    ImageType( long icon, final String desc, String mime, final String... suffix ) {
+    ImageType( final long icon, final String desc, final String mime, final String... suffix ) {
         this.i = icon;
         this.d = desc;
         this.mime = mime;
@@ -73,14 +73,14 @@ public enum ImageType {
      * @param fs signature
      * @return Type if matching else {@link ImageType#UNKNOWN}
      */
-    public static ImageType of( FileSig fs ) {
+    public static ImageType of( final FileSig fs ) {
         Objects.requireNonNull( fs );
         if ( fs.type() != FileSig.Type.IMAGE ) {
 
             return UNKNOWN;
         }
 
-        ImageType itype;
+        final ImageType itype;
 
         switch ( fs ) {
             case JPG:

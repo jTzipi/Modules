@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Tim Langhammer
+ * Copyright (c) 2021 Tim Langhammer
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -128,7 +128,7 @@ public class RegularPathNode implements IPathNode, Comparable<IPathNode> {
     public static RegularPathNode of( final Path path, final IPathNode parentNode )  {
         Objects.requireNonNull(path);
 
-        RegularPathNode pn = new RegularPathNode( path, parentNode );
+        final RegularPathNode pn = new RegularPathNode( path, parentNode );
 
         pn.init( path );
 
@@ -139,19 +139,19 @@ public class RegularPathNode implements IPathNode, Comparable<IPathNode> {
     private void init( final Path path )  {
         this.dir = Files.isDirectory( path );
         try {
-            BasicFileAttributes attrs = Files.readAttributes(path, BasicFileAttributes.class);
+            final BasicFileAttributes attrs = Files.readAttributes( path, BasicFileAttributes.class );
 
-            this.length = dir? DIR_LENGTH : attrs.size( );
+            this.length = dir ? DIR_LENGTH : attrs.size();
 
             ftc = attrs.creationTime();
 
-        } catch ( IOException e ) {
+        } catch ( final IOException e ) {
 
             this.length = 0L;
             ftc = FileTime.fromMillis( 0L );
             LOG.warn( "Can't read file time '" + path + "'", e );
         }
-        try{
+        try {
             this.type = Files.probeContentType( path );
         } catch ( final IOException ioE ) {
             this.type = "<Unknown>";
@@ -160,7 +160,7 @@ public class RegularPathNode implements IPathNode, Comparable<IPathNode> {
 
         try {
             this.hidden = Files.isHidden( path );
-        } catch ( IOException e ) {
+        } catch ( final IOException e ) {
 
             this.hidden = false;
         }
@@ -220,7 +220,7 @@ public class RegularPathNode implements IPathNode, Comparable<IPathNode> {
     }
 
     @Override
-    public List<IPathNode> getSubnodes( Predicate<? super Path> pp ) {
+    public List<IPathNode> getSubnodes( final Predicate<? super Path> pp ) {
         if ( !isDir() ) {
             return Collections.emptyList();
         }
@@ -280,17 +280,17 @@ public class RegularPathNode implements IPathNode, Comparable<IPathNode> {
     }
 
     @Override
-    public boolean equals( Object object ) {
-        if( this == object ) {
+    public boolean equals( final Object object ) {
+        if ( this == object ) {
             return true;
         }
-        if( !(object instanceof IPathNode) ) {
+        if ( !( object instanceof IPathNode ) ) {
             return false;
         }
 
-        IPathNode other = (IPathNode) object;
-        Path thisPath = getValue();
-        Path otherPath = other.getValue();
+        final IPathNode other = ( IPathNode ) object;
+        final Path thisPath = getValue();
+        final Path otherPath = other.getValue();
 
 
         return thisPath.normalize().equals( otherPath.normalize() );
@@ -313,7 +313,7 @@ public class RegularPathNode implements IPathNode, Comparable<IPathNode> {
     }
 
     @Override
-    public int compareTo( IPathNode pathNode ) {
+    public int compareTo( final IPathNode pathNode ) {
         return COMP.compare( this, pathNode );
     }
 

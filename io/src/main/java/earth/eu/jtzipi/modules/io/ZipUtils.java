@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Tim Langhammer
+ * Copyright (c) 2021 Tim Langhammer
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -53,7 +53,7 @@ public final class ZipUtils {
         return zipMap.computeIfAbsent( pathToZip, p -> {
             try {
                 return FileSystems.newFileSystem( p, null );
-            } catch ( IOException ioe ) {
+            } catch ( final IOException ioe ) {
                 return null;
             }
         } );
@@ -62,7 +62,7 @@ public final class ZipUtils {
 
     public static BasicFileAttributes readZipAttributes( final Path root, final Path relPath ) throws IOException {
 
-        FileSystem zfs = getZipFilesystem( root );
+        final FileSystem zfs = getZipFilesystem( root );
         return zfs.provider().readAttributes( relPath, BasicFileAttributes.class );
 
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Tim Langhammer
+ * Copyright (c) 2021 Tim Langhammer
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -17,10 +17,8 @@
 package earth.eu.jtzipi.modules.utils;
 
 
-import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
@@ -100,13 +98,13 @@ public enum RegUs implements Supplier<Pattern> {
     private final String regex;
     private final Pattern patter;
 
-    RegUs( final String regExp, int... modifier ) {
+    RegUs( final String regExp, final int... modifier ) {
         this.regex = regExp;
 
         int flag = 0;
         if ( modifier.length > 0 ) {
 
-            for ( int mod : modifier ) {
+            for ( final int mod : modifier ) {
                 flag |= mod;
             }
         }

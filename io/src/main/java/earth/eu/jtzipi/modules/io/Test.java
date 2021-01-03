@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Tim Langhammer
+ * Copyright (c) 2021 Tim Langhammer
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -22,13 +22,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-public class Test {
+public final class Test {
 
 
-    public static void main( String[] args ) {
+    public static void main( final String[] args ) {
 
 
-        Path images = IOUtils.getHomeDir();
+        final Path images = IOUtils.getHomeDir();
 
 //        try {
 //            Watcher watch = Watcher.create();
@@ -46,24 +46,23 @@ public class Test {
 
         System.out.println("ENDE");
 
-        int[] bla = { 0,12,3, 12, 1, 1, 1, 1, 1, 1, 1};
+        final int[] bla = {0, 12, 3, 12, 1, 1, 1, 1, 1, 1, 1};
         System.err.println("Habe Duplikat ? " + getDuplicate( bla )  );
 
     }
 
 
-
-    public static boolean getDuplicate( int[] numberArray ) {
+    public static boolean getDuplicate( final int[] numberArray ) {
         // Wenn null oder keine Zahlen
-        if( null == numberArray || numberArray.length == 0 ) {
+        if ( null == numberArray || numberArray.length == 0 ) {
             return false;
         }
 
         // Speichere alle Vorkommen der Zahlen
-        Map<Integer, Long> cmap = new HashMap<>();
+        final Map<Integer, Long> cmap = new HashMap<>();
 
         // Pro Zahl erhöhe das Vorkommen um 1 wenn vorhanden oder setze auf 1 wenn noch nicht vorhanden war
-        for( int temp : numberArray ) {
+        for ( final int temp : numberArray ) {
 
             //
             // Das Bedeutet:
@@ -72,7 +71,7 @@ public class Test {
             cmap.merge( temp, 1L, ( i1, i2 ) -> i1 = i1 + 1 );
         }
         // Wie viele Zahl
-        int size = numberArray.length;
+        final int size = numberArray.length;
 
         // 1. Streame die Einträge der Map
         // 2. Filtere nach alle Vorkommen von Zahlen die mehr als die Hälfte der Elemente

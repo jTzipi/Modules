@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Tim Langhammer
+ * Copyright (c) 2021 Tim Langhammer
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -42,7 +42,8 @@ public final class Watcher {
      * Watchkeys for all events.
      */
     public static final List<WatchEvent.Kind<?>> WATCH_KEY_EVENT_ALL = Arrays.asList( ENTRY_CREATE, ENTRY_MODIFY, ENTRY_DELETE );
-    private final WatchService ws;
+
+    private final WatchService ws;      // Watch
 
     /**
      * No Access.
@@ -60,11 +61,10 @@ public final class Watcher {
      *
      * @param ws WatchService
      * @return Watcher
-     *
      */
-    public static Watcher create( WatchService ws ) {
+    public static Watcher create( final WatchService ws ) {
         Objects.requireNonNull( ws );
-        Watcher watcher = new Watcher( ws );
+        final Watcher watcher = new Watcher( ws );
         watcher.init();
         return watcher;
     }
@@ -110,7 +110,7 @@ public final class Watcher {
             throw new IOException( "Path '" + path + "' seems to be not of type directory" );
         }
 
-        IWatchTask watchTask = new WatchTask( traceProp, recursiveProp, watchEventHandler, eventType );
+        final IWatchTask watchTask = new WatchTask( traceProp, recursiveProp, watchEventHandler, eventType );
         watchTask.register( path );
 
 
@@ -119,18 +119,16 @@ public final class Watcher {
 
     /**
      * Create a handler for watch dir.
-     * @param dir dir to watch
+     *
+     * @param dir               dir to watch
      * @param watchEventHandler watch event handler
      * @return task
      * @throws IOException if {@code dir} is not readable or is not a dir
-     *
      */
-    public IWatchTask forPath( final Path dir, IWatchEventHandler watchEventHandler ) throws IOException {
+    public IWatchTask forPath( final Path dir, final IWatchEventHandler watchEventHandler ) throws IOException {
 
         return forPath( dir, false, false, watchEventHandler, WATCH_KEY_EVENT_ALL );
     }
-
-
 
 
     /**
@@ -149,7 +147,7 @@ public final class Watcher {
         private final boolean trace;                          // trace
         private final IWatchEventHandler weha;                // Watch event
 
-        private WatchTask( final boolean trace, final boolean recursive, final IWatchEventHandler watchEventHandler, List<WatchEvent.Kind<?>> watchKeyEventL ) {
+        private WatchTask( final boolean trace, final boolean recursive, final IWatchEventHandler watchEventHandler, final List<WatchEvent.Kind<?>> watchKeyEventL ) {
 
             this.trace = trace;
             this.recursive = recursive;
@@ -167,10 +165,10 @@ public final class Watcher {
             }
 
             // register Path
-            WatchKey key = dirPath.register( ws, weks.toArray( new WatchEvent.Kind<?>[0] ) );
+            final WatchKey key = dirPath.register( ws, weks.toArray( new WatchEvent.Kind<?>[0] ) );
             // trace old entries
             if ( trace ) {
-                Path oldPath = watchKeyM.get( key );
+                final Path oldPath = watchKeyM.get( key );
                 // new entry
                 if ( null == oldPath ) {
 
@@ -206,32 +204,31 @@ public final class Watcher {
 // Start handling
             for ( ; ; ) {
 
-                WatchKey key;
+                final WatchKey key;
                 try {
                     key = ws.take();
-                } catch ( InterruptedException iE ) {
+                } catch ( final InterruptedException iE ) {
                     Log.warn( "IE ... stop!" );
 
                     break;
                 }
                 // path of dir
-                Path dirEvent = watchKeyM.get( key );
+                final Path dirEvent = watchKeyM.get( key );
                 if ( dirEvent == null ) {
                     Log.warn( "Watch key is not known" );
                     continue;
                 }
                 // poll events
-                for ( WatchEvent<?> event : key.pollEvents() ) {
-                    @SuppressWarnings("unchecked")
-                    WatchEvent<Path> wat = ( WatchEvent<Path> ) event;  // cast
-                    WatchEvent.Kind<?> kind = wat.kind();               //
-                    int ce = wat.count();                               //
-                    Path path = wat.context();                          // name of path
-                    Path abs = dirEvent.resolve( path );                // resolve against
+                for ( final WatchEvent<?> event : key.pollEvents() ) {
+                    @SuppressWarnings("unchecked") final WatchEvent<Path> wat = ( WatchEvent<Path> ) event;  // cast
+                    final WatchEvent.Kind<?> kind = wat.kind();               //
+                    final int ce = wat.count();                               //
+                    final Path path = wat.context();                          // name of path
+                    final Path abs = dirEvent.resolve( path );                // resolve against
                     Log.warn( "Event '" + wat.kind() );
                     Log.info( abs + "'" );
 
-                    IWatchEventHandler.EventAction eventAction;
+                    final IWatchEventHandler.EventAction eventAction;
                     // TODO: how to handle?
                     if ( kind == OVERFLOW ) {
 
@@ -251,7 +248,7 @@ public final class Watcher {
                                 && recursive
                                 && Files.isDirectory( abs, LinkOption.NOFOLLOW_LINKS ) ) {
                             // sub dir register
-                            List<Path> error = registerDir( abs );
+                            final List<Path> error = registerDir( abs );
                             Log.warn( "Dirs not watch '" + error );
                         }
 
@@ -279,11 +276,11 @@ public final class Watcher {
                 }
 
                 // THIS MUST BE
-                boolean valid = key.reset();
+                final boolean valid = key.reset();
 
                 if ( !valid ) {
 
-                    Path removed = watchKeyM.remove( key );
+                    final Path removed = watchKeyM.remove( key );
                     Log.info( "Path '" + removed + "' not valid  removed" );
                     // no more dirs to watch
                     if ( watchKeyM.isEmpty() ) {
@@ -297,38 +294,16 @@ public final class Watcher {
 
         }
 
-//        private void init() throws IOException {
-//
-//            if ( recursive ) {
-//
-//                // register all path and sub path
-//                List<Path> failedL = registerDir( dir );
-//
-//                Log.info( "Dirs we can not watch '" + failedL + "'" );
-//                // no dirs registered
-//                if ( watchKeyM.isEmpty() ) {
-//
-//                    throw new IOException( "Dir '" + dir + "' is not registered" );
-//                }
-//
-//            } else {
-//
-//                // register dir
-//
-//register( dir );
-//
-//            }
-//
-//        }
+
 
         private List<Path> registerDir( final Path dir ) {
-            List<Path> failedL = new ArrayList<>();
+            final List<Path> failedL = new ArrayList<>();
 
 
             try {
                 Files.walkFileTree( dir, new SimpleFileVisitor<>() {
                     @Override
-                    public FileVisitResult preVisitDirectory( Path dirPath, BasicFileAttributes attrs ) {
+                    public FileVisitResult preVisitDirectory( final Path dirPath, final BasicFileAttributes attrs ) {
 
 
                         try {
@@ -342,7 +317,7 @@ public final class Watcher {
 
 
                 } );
-            } catch ( IOException e ) {
+            } catch ( final IOException e ) {
 
                 Log.error( "IO during register", e );
             }
@@ -351,7 +326,7 @@ public final class Watcher {
         }
         //  };
 
-        private void beforeStop( String info ) {
+        private void beforeStop( final String info ) {
             Log.info( info );
 
         }

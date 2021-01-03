@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Tim Langhammer
+ * Copyright (c) 2021 Tim Langhammer
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -59,12 +59,13 @@ this(-1, -1 );
 
     /**
      * Build new instance.
-     * @param width width &gt; 0
+     *
+     * @param width  width &gt; 0
      * @param height height &gt; 0
      * @return ImageDimension of specified size
      * @throws IllegalArgumentException if {@code width} or {@code height} are &lt; 0
      */
-    public static ImageDimension of( int width, int height ) {
+    public static ImageDimension of( final int width, final int height ) {
         if ( 0 >= width || 0 >= height ) {
             throw new IllegalArgumentException( "width[=" + width + "] or height[=" + height + "] are <= 0" );
         }
@@ -96,14 +97,14 @@ this(-1, -1 );
     }
 
     @Override
-    public boolean equals( Object other ) {
-        if( other == this ) {
+    public boolean equals( final Object other ) {
+        if ( other == this ) {
             return true;
         }
-        if( !(other instanceof ImageDimension)) {
+        if ( !( other instanceof ImageDimension ) ) {
             return false;
         }
-        ImageDimension idim = (ImageDimension)other;
+        final ImageDimension idim = ( ImageDimension ) other;
         return getWidth() == idim.getWidth() &&
                 getHeight() == idim.getHeight();
     }
@@ -117,10 +118,10 @@ this(-1, -1 );
     }
 
     @Override
-    public int compareTo( ImageDimension imageDimension ) {
+    public int compareTo( final ImageDimension imageDimension ) {
 
-        int area = this.getHeight() * this.getWidth();
-        int other = imageDimension.getHeight() * imageDimension.getWidth();
-        return area == other ? 0 : area > other ? 1 : -1;
+        final int area = this.getHeight() * this.getWidth();
+        final int other = imageDimension.getHeight() * imageDimension.getWidth();
+        return Integer.compare( area, other );
     }
 }

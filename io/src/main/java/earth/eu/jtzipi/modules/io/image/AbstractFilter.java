@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Tim Langhammer
+ * Copyright (c) 2021 Tim Langhammer
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -36,30 +36,30 @@ public abstract class AbstractFilter implements BufferedImageOp {
     /**
      * {@inheritDoc}
      */
-    public Rectangle2D getBounds2D(BufferedImage src) {
-        return new Rectangle(0, 0, src.getWidth(), src.getHeight());
+    public Rectangle2D getBounds2D( final BufferedImage src ) {
+        return new Rectangle( 0, 0, src.getWidth(), src.getHeight() );
     }
 
     /**
      * {@inheritDoc}
      */
-    public BufferedImage createCompatibleDestImage(BufferedImage src,
-                                                   ColorModel destCM) {
-        if (destCM == null) {
+    public BufferedImage createCompatibleDestImage( final BufferedImage src,
+                                                    ColorModel destCM ) {
+        if ( destCM == null ) {
             destCM = src.getColorModel();
         }
 
-        return new BufferedImage(destCM,
+        return new BufferedImage( destCM,
                 destCM.createCompatibleWritableRaster(
-                        src.getWidth(), src.getHeight()),
-                destCM.isAlphaPremultiplied(), null);
+                        src.getWidth(), src.getHeight() ),
+                destCM.isAlphaPremultiplied(), null );
     }
 
     /**
      * {@inheritDoc}
      */
-    public Point2D getPoint2D(Point2D srcPt, Point2D dstPt) {
-        return (Point2D) srcPt.clone();
+    public Point2D getPoint2D( final Point2D srcPt, final Point2D dstPt ) {
+        return ( Point2D ) srcPt.clone();
     }
 
     /**

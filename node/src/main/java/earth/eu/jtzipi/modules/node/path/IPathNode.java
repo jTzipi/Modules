@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Tim Langhammer
+ * Copyright (c) 2021 Tim Langhammer
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 package earth.eu.jtzipi.modules.node.path;
 
 import earth.eu.jtzipi.modules.node.INode;
-
 
 import java.nio.file.Path;
 import java.nio.file.attribute.FileTime;
@@ -106,7 +105,7 @@ public interface IPathNode extends INode<Path> {
     static List<IPathNode> getPathToRoot( IPathNode node ) {
         Objects.requireNonNull( node );
 
-        List<IPathNode> pathL = new ArrayList<>();
+        final List<IPathNode> pathL = new ArrayList<>();
         pathL.add( node );
 
         while( node.getParent() != null ) {

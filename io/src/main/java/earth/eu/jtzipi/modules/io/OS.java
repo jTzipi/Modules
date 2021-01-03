@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Tim Langhammer
+ * Copyright (c) 2021 Tim Langhammer
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -63,9 +63,9 @@ public enum OS {
      * @return OS
      */
     public static OS getSystemOS() {
-        String ostr = System.getProperty( "os.name" ).toLowerCase();
+        final String ostr = System.getProperty( "os.name" ).toLowerCase();
 
-        OS os;
+        final OS os;
         // Linux Unix
         if ( ostr.matches( ".*(nix|nux|aix).*" ) ) {
             os = LINUX;

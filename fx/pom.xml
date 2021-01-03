@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright (c) 2019 Tim Langhammer
+  ~ Copyright (c) 2021 Tim Langhammer
   ~
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@
     </parent>
 
 
+
     <artifactId>modules-fx</artifactId>
 
     <dependencies>
@@ -45,13 +46,13 @@
             <artifactId>javafx-controls</artifactId>
         </dependency>
 
-
         <dependency>
             <groupId>earth.eu.jtzipi.modules</groupId>
             <artifactId>modules-utils</artifactId>
-            <version>0.5.1</version>
-            <scope>compile</scope>
+            <version>${project.version}</version>
+
         </dependency>
+
 
     </dependencies>
     

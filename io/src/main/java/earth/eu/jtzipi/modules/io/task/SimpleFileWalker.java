@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Tim Langhammer
+ * Copyright (c) 2021 Tim Langhammer
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -27,49 +27,50 @@ import java.util.function.Predicate;
 
 public class SimpleFileWalker implements FileVisitor<Path> {
 
+    private final BlockingQueue<Path> bq;
+    private Predicate<? super Path> pp = p -> true;
 
-        private Predicate<Path> pp;
-        private BlockingQueue<Path> bq;
-
-        private SimpleFileWalker( final BlockingQueue<Path> bq ) {
-            this.bq = bq;
-        }
-
-
-
-        @Override
-        public FileVisitResult preVisitDirectory( Path path, BasicFileAttributes basicFileAttributes ) throws IOException {
-
-
-            return Files.isReadable( path ) ? FileVisitResult.CONTINUE : FileVisitResult.SKIP_SUBTREE;
-        }
-
-        @Override
-        public FileVisitResult visitFile( Path path, BasicFileAttributes basicFileAttributes ) throws IOException {
-
-            if( pp.test( path ) ) {
-                try {
-                    bq.put( path );
-                } catch ( InterruptedException ie ) {
-
-                    Thread.currentThread().interrupt();
-                    return FileVisitResult.TERMINATE;
-                }
-            }
-
-            return FileVisitResult.CONTINUE;
-        }
-
-        @Override
-        public FileVisitResult visitFileFailed( Path path, IOException e ) throws IOException {
-
-            return FileVisitResult.CONTINUE;
-        }
-
-        @Override
-        public FileVisitResult postVisitDirectory( Path path, IOException e ) throws IOException {
-            return FileVisitResult.CONTINUE;
-        }
+    private SimpleFileWalker( final BlockingQueue<Path> bq ) {
+        this.bq = bq;
     }
+
+    @Override
+    public FileVisitResult preVisitDirectory( final Path path, final BasicFileAttributes basicFileAttributes ) {
+
+
+        return Files.isReadable( path ) ? FileVisitResult.CONTINUE : FileVisitResult.SKIP_SUBTREE;
+    }
+
+    @Override
+    public FileVisitResult visitFile( final Path path, final BasicFileAttributes basicFileAttributes ) {
+
+        if ( pp.test( path ) ) {
+            try {
+                bq.put( path );
+            } catch ( final InterruptedException ie ) {
+
+                Thread.currentThread().interrupt();
+                return FileVisitResult.TERMINATE;
+            }
+        }
+
+        return FileVisitResult.CONTINUE;
+    }
+
+    @Override
+    public FileVisitResult visitFileFailed( final Path path, final IOException e ) {
+
+        return FileVisitResult.CONTINUE;
+    }
+
+    @Override
+    public FileVisitResult postVisitDirectory( final Path path, final IOException e ) {
+        return FileVisitResult.CONTINUE;
+    }
+
+    public void setPredicate( Predicate<? super Path> pathPredicate ) {
+        this.pp = pathPredicate;
+    }
+}
 
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Tim Langhammer
+ * Copyright (c) 2021 Tim Langhammer
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -28,7 +28,8 @@ final class NodeProvider {
 
     }
 
-    public static IPathNode create( Path path, IPathNode parentPathNode ) {
+
+    public static IPathNode create( final Path path, final IPathNode parentPathNode ) {
         Objects.requireNonNull( path );
 
         if ( !Files.isReadable( path ) ) {
@@ -36,9 +37,9 @@ final class NodeProvider {
             return NotReadablePathNode.of( path, parentPathNode );
         }
 
-        String sfx = IOUtils.getPathSuffixSafe( path );
+        final String sfx = IOUtils.getPathSuffixSafe( path );
 
-        IPathNode node;
+        final IPathNode node;
 
 
 

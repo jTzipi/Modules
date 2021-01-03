@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Tim Langhammer
+ * Copyright (c) 2021 Tim Langhammer
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -15,8 +15,6 @@
  */
 
 package earth.eu.jtzipi.modules.io;
-
-
 
 
 import earth.eu.jtzipi.modules.io.image.GraphicsUtilities;
@@ -51,47 +49,45 @@ public final class ResourceUtils {
 
     }
 
-    public static List<Path> loadImagesFromDir( final Path pathToDir, boolean write ) throws IOException {
+    public static List<Path> loadImagesFromDir( final Path pathToDir, final boolean write ) throws IOException {
         Objects.requireNonNull( pathToDir, "Path is null" );
-        if( !Files.isReadable(pathToDir) ) {
+        if ( !Files.isReadable( pathToDir ) ) {
 
             throw new IOException( "Can not read '" + pathToDir + "'" );
         }
 
 
-
-        if( !Files.isDirectory( pathToDir, LinkOption.NOFOLLOW_LINKS ) ) {
+        if ( !Files.isDirectory( pathToDir, LinkOption.NOFOLLOW_LINKS ) ) {
 
             return Collections.emptyList();
         }
     // try to read images from dir
-        List<Path> imgPathL = IOUtils.lookupDir( pathToDir, IOUtils.PATH_ACCEPT_IMAGE );
+        final List<Path> imgPathL = IOUtils.lookupDir( pathToDir, IOUtils.PATH_ACCEPT_IMAGE );
 
-        List<Path> readImgL = new ArrayList<>();
+        final List<Path> readImgL = new ArrayList<>();
         //
-        for( Path imgPath : imgPathL ) {
+        for ( final Path imgPath : imgPathL ) {
 
-            String imgName;
-            ImageDimension imgDim;
+            final String imgName;
+            final ImageDimension imgDim;
             try {
                 imgName = IOUtils.getPathPrefix( imgPath );
                 imgDim = ImageUtils.getImageDimension( imgPath );
 
-                Map<ImageDimension, BufferedImage> imgMap =  IMAGE_CACHE.computeIfAbsent( imgName, gadi -> new HashMap<>() );
+                final Map<ImageDimension, BufferedImage> imgMap = IMAGE_CACHE.computeIfAbsent( imgName, gadi -> new HashMap<>() );
 
                 // Image found and write not
-                if( imgMap.containsKey( imgDim ) && !write ) {
+                if ( imgMap.containsKey( imgDim ) && !write ) {
 
                     continue;
                 }
 
-                URL imgUrl = imgPath.toUri().toURL();
-                BufferedImage bufImg = GraphicsUtilities.loadCompatibleImage( imgUrl );
+                final URL imgUrl = imgPath.toUri().toURL();
+                final BufferedImage bufImg = GraphicsUtilities.loadCompatibleImage( imgUrl );
                 imgMap.put( imgDim, bufImg );
                 readImgL.add( imgPath );
 
-            } catch ( IOException ioE ) {
-
+            } catch ( final IOException ioE ) {
 
 
             }
@@ -104,38 +100,38 @@ return imgPathL;
         IMAGE_CACHE.clear();
     }
 
-    public static List<Path> loadFontsFromDir( Path pathToFont, double sizeDef, boolean writeProp ) throws IOException {
+    public static List<Path> loadFontsFromDir( final Path pathToFont, final double sizeDef, final boolean writeProp ) throws IOException {
         Objects.requireNonNull( pathToFont, "Path is null" );
-        if( !Files.isReadable(pathToFont) ) {
+        if ( !Files.isReadable( pathToFont ) ) {
 
             throw new IOException( "Can not read '" + pathToFont + "'" );
         }
 
-        if( !Files.isDirectory( pathToFont, LinkOption.NOFOLLOW_LINKS ) ) {
+        if ( !Files.isDirectory( pathToFont, LinkOption.NOFOLLOW_LINKS ) ) {
 
             return Collections.emptyList();
         }
 
-        List<Path> fontPathL = IOUtils.lookupDir( pathToFont, IOUtils.PATH_ACCEPT_FONT );
-List<Path> ret = new ArrayList<>();
+        final List<Path> fontPathL = IOUtils.lookupDir( pathToFont, IOUtils.PATH_ACCEPT_FONT );
+        final List<Path> ret = new ArrayList<>();
 
 
-        for( Path fp : fontPathL ) {
+        for ( final Path fp : fontPathL ) {
 
 
-            String fontName ;
+            final String fontName;
             try {
                 fontName = IOUtils.getPathPrefix( fp );
-                if( FONT_CACHE.containsKey( fontName ) && !writeProp ) {
+                if ( FONT_CACHE.containsKey( fontName ) && !writeProp ) {
 
                     continue;
                 }
 
-                Font f = IOUtils.loadFont( fp,sizeDef );
+                final Font f = IOUtils.loadFont( fp, sizeDef );
                 FONT_CACHE.put( fontName, f );
 
                 ret.add( fp );
-            } catch ( IOException ioe ) {
+            } catch ( final IOException ioe ) {
 
 
             }

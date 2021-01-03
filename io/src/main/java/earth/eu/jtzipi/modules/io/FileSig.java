@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Tim Langhammer
+ * Copyright (c) 2021 Tim Langhammer
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -54,24 +54,24 @@ public enum FileSig {
     /**
      * Test
      *
-     * @param bytes
-     * @return
+     * @param bytes gadi
+     * @return if byte match
      */
-    public boolean match( byte[] bytes ) {
+    public boolean match( final byte[] bytes ) {
 
         if ( 0 == bytes.length ) {
             return false;
         }
 
 
-        StringBuilder builder = new StringBuilder();
+        final StringBuilder builder = new StringBuilder();
 
         for ( int i = 0; i < bytes.length; i++ ) {
             builder.append( String.format( "%02X", bytes[i] ) );
         }
 
-        String chk = builder.toString();
-        for ( String code : codeL ) {
+        final String chk = builder.toString();
+        for ( final String code : codeL ) {
             if ( code.trim().startsWith( chk ) ) {
                 return true;
             }
@@ -94,6 +94,6 @@ public enum FileSig {
     public enum Type {
         IMAGE,
         FONT,
-        UNKNOWN;
+        UNKNOWN
     }
 }

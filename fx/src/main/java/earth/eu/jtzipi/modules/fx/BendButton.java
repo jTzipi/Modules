@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Tim Langhammer
+ * Copyright (c) 2021 Tim Langhammer
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -26,17 +26,17 @@ import javafx.scene.shape.StrokeType;
 public class BendButton extends Control {
 
 
-    private StringProperty fxTextProp = new SimpleStringProperty( this, "FX_TEXT_PROP" );
+    private final StringProperty fxTextProp = new SimpleStringProperty( this, "FX_TEXT_PROP" );
 
 
-    private ObjectProperty<Image> fxImageProp = new SimpleObjectProperty<>();
+    private final ObjectProperty<Image> fxImageProp = new SimpleObjectProperty<>();
 
-    private ObjectProperty<StrokeType> fxFrameStrokeTypeProp = new SimpleObjectProperty<>();
-    private ObjectProperty<Color> fxFrameStrokeColorProp = new SimpleObjectProperty<>();
-    private DoubleProperty fxFrameStrokeWidthProp = new SimpleDoubleProperty();
+    private final ObjectProperty<StrokeType> fxFrameStrokeTypeProp = new SimpleObjectProperty<>();
+    private final ObjectProperty<Color> fxFrameStrokeColorProp = new SimpleObjectProperty<>();
+    private final DoubleProperty fxFrameStrokeWidthProp = new SimpleDoubleProperty();
 
 
-    public BendButton( String text, Image image, double prefWidth, double prefHeight ) {
+    public BendButton( final String text, final Image image, final double prefWidth, final double prefHeight ) {
         this.fxTextProp.setValue( text );
         this.fxImageProp.setValue( image );
 

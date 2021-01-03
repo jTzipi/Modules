@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Tim Langhammer
+ * Copyright (c) 2021 Tim Langhammer
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -34,16 +34,17 @@ public class BendButtonSkin extends SkinBase<BendButton> {
     private static final double HEIGHT_PREF = 46D;
     private static final double HEIGHT_MAX = 999D;
 
-    private double cw;
-    private double ch;
-    private Canvas canvas;
+    private final double cw;
+    private final double ch;
+    private final Canvas canvas;
     private GraphicsContext gc;
+
     /**
      * Constructor for all SkinBase instances.
      *
      * @param control The control for which this Skin should attach to.
      */
-    protected BendButtonSkin( BendButton control ) {
+    protected BendButtonSkin( final BendButton control ) {
         super( control );
         cw = control.getWidth();
         ch = control.getHeight();
@@ -56,39 +57,39 @@ public class BendButtonSkin extends SkinBase<BendButton> {
     }
 
     @Override
-    protected double computeMinWidth( double height, double topInset, double rightInset, double bottomInset, double leftInset ) {
+    protected double computeMinWidth( final double height, final double topInset, final double rightInset, final double bottomInset, final double leftInset ) {
         return WIDTH_MIN;
     }
 
     @Override
-    protected double computeMinHeight( double width, double topInset, double rightInset, double bottomInset, double leftInset ) {
+    protected double computeMinHeight( final double width, final double topInset, final double rightInset, final double bottomInset, final double leftInset ) {
 
         return HEIGHT_MIN;
     }
 
     @Override
-    protected double computeMaxWidth( double height, double topInset, double rightInset, double bottomInset, double leftInset ) {
+    protected double computeMaxWidth( final double height, final double topInset, final double rightInset, final double bottomInset, final double leftInset ) {
         return Math.min( WIDTH_MAX, cw );
     }
 
     @Override
-    protected double computeMaxHeight( double width, double topInset, double rightInset, double bottomInset, double leftInset ) {
+    protected double computeMaxHeight( final double width, final double topInset, final double rightInset, final double bottomInset, final double leftInset ) {
         return HEIGHT_MAX;
     }
 
     @Override
-    protected double computePrefWidth( double height, double topInset, double rightInset, double bottomInset, double leftInset ) {
+    protected double computePrefWidth( final double height, final double topInset, final double rightInset, final double bottomInset, final double leftInset ) {
         return WIDTH_MAX;
     }
 
     @Override
-    protected double computePrefHeight( double width, double topInset, double rightInset, double bottomInset, double leftInset ) {
+    protected double computePrefHeight( final double width, final double topInset, final double rightInset, final double bottomInset, final double leftInset ) {
         return Math.min( HEIGHT_MAX, ch );
     }
 
     private void draw() {
 
-        BendButton bb = getSkinnable();
+        final BendButton bb = getSkinnable();
         gc = canvas.getGraphicsContext2D();
 
         gc.setLineWidth( 3D );

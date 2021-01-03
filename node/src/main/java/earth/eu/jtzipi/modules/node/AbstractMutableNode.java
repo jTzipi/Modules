@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Tim Langhammer
+ * Copyright (c) 2021 Tim Langhammer
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -32,27 +32,27 @@ public abstract class AbstractMutableNode<T> implements IMutableNode<T> {
     protected T value;
     protected List<INode<T>> subL;
 
-    protected AbstractMutableNode(INode<T> parent, T val) {
+    protected AbstractMutableNode( final INode<T> parent, final T val ) {
         this.parentNode = parent;
         this.value = val;
         this.subL = new ArrayList<>();
     }
 
     @Override
-    public boolean addNode( INode<T> node ) {
+    public boolean addNode( final INode<T> node ) {
         return subL.add( node );
     }
 
     @Override
-    public boolean removeNode( INode<T> node ) {
-        if( !subL.contains( node ) ) {
+    public boolean removeNode( final INode<T> node ) {
+        if ( !subL.contains( node ) ) {
             throw new IllegalArgumentException( "" );
         }
         return subL.remove( node );
     }
 
     @Override
-    public INode<T> remove( int index ) {
+    public INode<T> remove( final int index ) {
         return subL.remove( index );
     }
 
@@ -73,7 +73,7 @@ public abstract class AbstractMutableNode<T> implements IMutableNode<T> {
     }
 
     @Override
-    public List<? extends INode<T>> getSubnodes( Predicate<? super T> predicate ) {
+    public List<? extends INode<T>> getSubnodes( final Predicate<? super T> predicate ) {
         return subL.stream().filter( nd -> predicate.test( nd.getValue() ) ).collect( Collectors.toList() );
     }
 

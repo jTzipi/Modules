@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Tim Langhammer
+ * Copyright (c) 2021 Tim Langhammer
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ public enum Sample {
     KILO_96( 96 ),
     ;
 
-    Sample( int rate ) {
+    Sample( final int rate ) {
 
     }
 }

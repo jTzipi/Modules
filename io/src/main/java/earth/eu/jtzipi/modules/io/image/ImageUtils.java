@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Tim Langhammer
+ * Copyright (c) 2021 Tim Langhammer
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -61,33 +61,33 @@ private static final Logger Log = LoggerFactory.getLogger( "ImageUtils" );
         Log.info( "...try to read image '" + image + "'" );
         // no read throw
         if( !Files.isReadable(image)) {
-            throw new IOException("");
+            throw new IOException( "" );
         }
         // no image return empty
-        if( !IOUtils.isImage( image ) ) {
+        if ( !IOUtils.isImage( image ) ) {
             return ImageDimension.EMPTY;
         }
 
         Log.info( "... image found" );
         Log.info( "... Type is '" + IOUtils.getPathSuffixSafe( image ) );
 
-        String sfx= IOUtils.getPathSuffixSafe( image );         // suffix parse
-        File imgFile = image.toFile();                          // to file
+        final String sfx = IOUtils.getPathSuffixSafe( image );         // suffix parse
+        final File imgFile = image.toFile();                          // to file
         ImageReader ir = IMG_READER_MAP.get( sfx );             // cached?
 
-        if(  ir != null ) {
+        if ( ir != null ) {
             // try to read by cached image reader
             Log.info( "... read from cache" );
-            return  tryReadDim( imgFile,ir );
+            return tryReadDim( imgFile, ir );
         } else {
             Log.info( "... reader not cached" );
             //
-            Iterator<ImageReader> irit = ImageIO.getImageReadersBySuffix( sfx );
+            final Iterator<ImageReader> irit = ImageIO.getImageReadersBySuffix( sfx );
 
             while ( irit.hasNext() ) {
                 ir = irit.next();
                 Log.info( "... found reader try to parse dim" );
-                ImageDimension imgDim = tryReadDim( image.toFile(), ir );
+                final ImageDimension imgDim = tryReadDim( image.toFile(), ir );
 
             if( null != imgDim ) {
                 Log.info( "... dim read" );
@@ -98,18 +98,18 @@ private static final Logger Log = LoggerFactory.getLogger( "ImageUtils" );
             }
         }
 
-        throw new IOException("Failed to read dim of file");
+        throw new IOException( "Failed to read dim of file" );
     }
 
 
-    private static ImageDimension tryReadDim( File file, ImageReader imgRead ) {
-        try ( ImageInputStream iis = new FileImageInputStream( file ) ) {
+    private static ImageDimension tryReadDim( final File file, final ImageReader imgRead ) {
+        try ( final ImageInputStream iis = new FileImageInputStream( file ) ) {
 
 
             imgRead.setInput( iis );
-            int minIdx = imgRead.getMinIndex();
-            int width = imgRead.getWidth( minIdx );
-            int height = imgRead.getHeight( minIdx );
+            final int minIdx = imgRead.getMinIndex();
+            final int width = imgRead.getWidth( minIdx );
+            final int height = imgRead.getHeight( minIdx );
 
 
             return ImageDimension.of( width, height );
@@ -129,10 +129,10 @@ Log.error( "Failed to read dimension ", ioE );
      * @param icon icon
      * @return buffered image
      */
-    public static BufferedImage iconToBufferedImage( javax.swing.Icon icon ) {
+    public static BufferedImage iconToBufferedImage( final javax.swing.Icon icon ) {
         Objects.requireNonNull( icon );
-        BufferedImage bufImg = GraphicsUtilities.createTranslucentCompatibleImage( icon.getIconWidth(), icon.getIconHeight() );
-        icon.paintIcon( null, bufImg.createGraphics(), 0, 0  );
+        final BufferedImage bufImg = GraphicsUtilities.createTranslucentCompatibleImage( icon.getIconWidth(), icon.getIconHeight() );
+        icon.paintIcon( null, bufImg.createGraphics(), 0, 0 );
 
         return bufImg;
     }

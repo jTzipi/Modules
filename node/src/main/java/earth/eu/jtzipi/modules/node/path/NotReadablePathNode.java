@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Tim Langhammer
+ * Copyright (c) 2021 Tim Langhammer
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -53,15 +53,15 @@ public final class NotReadablePathNode implements IPathNode, Comparable<IPathNod
      * @param parentNode parent
      * @return created node
      */
-    public static NotReadablePathNode of( Path path, final IPathNode parentNode ) {
+    public static NotReadablePathNode of( final Path path, final IPathNode parentNode ) {
         Objects.requireNonNull( path );
-        NotReadablePathNode pathNode = new NotReadablePathNode( path, parentNode );
+        final NotReadablePathNode pathNode = new NotReadablePathNode( path, parentNode );
         pathNode.init( path );
 
         return pathNode;
     }
 
-    private void init( Path path ) {
+    private void init( final Path path ) {
 
         name = IOUtils.getPathDisplayName( path );
         desc = IOUtils.getPathTypeDescription( path );
@@ -114,7 +114,7 @@ public final class NotReadablePathNode implements IPathNode, Comparable<IPathNod
     }
 
     @Override
-    public List<IPathNode> getSubnodes( Predicate<? super Path> predicate ) {
+    public List<IPathNode> getSubnodes( final Predicate<? super Path> predicate ) {
         return Collections.emptyList();
     }
 
@@ -147,11 +147,11 @@ public final class NotReadablePathNode implements IPathNode, Comparable<IPathNod
     }
 
     @Override
-    public boolean equals( Object o ) {
+    public boolean equals( final Object o ) {
         if ( this == o ) return true;
         if ( o == null || getClass() != o.getClass() ) return false;
 
-        NotReadablePathNode that = ( NotReadablePathNode ) o;
+        final NotReadablePathNode that = ( NotReadablePathNode ) o;
 
         if ( !path.equals( that.path ) ) return false;
         if ( name != null ? !name.equals( that.name ) : that.name != null ) return false;
@@ -159,7 +159,7 @@ public final class NotReadablePathNode implements IPathNode, Comparable<IPathNod
     }
 
     @Override
-    public int compareTo( IPathNode iPathNode ) {
-        return COMP.compare( this, iPathNode  );
+    public int compareTo( final IPathNode iPathNode ) {
+        return COMP.compare( this, iPathNode );
     }
 }

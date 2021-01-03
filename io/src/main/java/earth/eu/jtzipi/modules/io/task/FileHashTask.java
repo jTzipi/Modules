@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Tim Langhammer
+ * Copyright (c) 2021 Tim Langhammer
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -25,7 +25,8 @@ import java.security.MessageDigest;
 import java.util.Objects;
 import java.util.concurrent.Callable;
 
-import static earth.eu.jtzipi.modules.utils.ChecksumUtils.*;
+import static earth.eu.jtzipi.modules.utils.ChecksumUtils.calcHash;
+
 
 /**
  *
@@ -39,7 +40,7 @@ public class FileHashTask implements Callable<String> {
      * @param path          path to file
      * @param messageDigest message digest
      */
-    FileHashTask( final Path path, MessageDigest messageDigest ) {
+    FileHashTask( final Path path, final MessageDigest messageDigest ) {
         this.path = path;
         this.md = messageDigest;
     }
@@ -69,7 +70,7 @@ public class FileHashTask implements Callable<String> {
 
         try {
             ret = calcHash( path, md );
-        } catch ( IOException ioE ) {
+        } catch ( final IOException ioE ) {
 
             ret = "?";
         }

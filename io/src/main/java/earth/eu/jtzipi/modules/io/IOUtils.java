@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Tim Langhammer
+ * Copyright (c) 2021 Tim Langhammer
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@ import javafx.scene.text.Font;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.filechooser.FileSystemView;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -31,7 +30,6 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.file.*;
 import java.util.*;
-import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -134,12 +132,32 @@ public final class IOUtils {
     public static Image loadImage( final Path path ) throws IOException {
         Objects.requireNonNull( path );
 
-        try ( InputStream ips = Files.newInputStream( path ) ) {
-            Image img = new Image( ips );
+        try ( final InputStream ips = Files.newInputStream( path ) ) {
+            final Image img = new Image( ips );
 
             return img;
         } catch ( final IOException ioE ) {
-            LOG.error( "Can not read Pic '" + path + "' " );
+            LOG.warn( "Can not read Pic '" + path + "' " );
+            throw ioE;
+        }
+    }
+
+    /**
+     * load image from path.
+     *
+     * @param path                    path to image
+     * @param width                   pref width to
+     * @param height                  pref height of image
+     * @param preserveAspectRatioProp preserve aspect ratio
+     * @param smoothProp              smooth
+     * @return Image
+     * @throws IOException fail
+     */
+    public static Image loadImage( final Path path, final double width, final double height, final boolean preserveAspectRatioProp, final boolean smoothProp ) throws IOException {
+        try ( final InputStream fis = Files.newInputStream( path ) ) {
+            return new Image( fis, width, height, preserveAspectRatioProp, smoothProp );
+        } catch ( final IOException ioE ) {
+            LOG.warn( "Can't read image for path " + path + "'" );
             throw ioE;
         }
     }
@@ -157,7 +175,7 @@ public final class IOUtils {
 
         try {
             ret = Files.size( path );
-        } catch ( IOException e ) {
+        } catch ( final IOException e ) {
             ret = FILE_SIZE_UNKNOWN;
         }
         return ret;
@@ -174,9 +192,9 @@ public final class IOUtils {
     public static Optional<Image> loadImageSafe( final Path path ) {
 
         try {
-            Image img = loadImage( path );
+            final Image img = loadImage( path );
             return Optional.of( img );
-        } catch ( IOException e ) {
+        } catch ( final IOException e ) {
             return Optional.empty();
         }
 
@@ -202,8 +220,8 @@ public final class IOUtils {
             throw new IllegalArgumentException( "Font size < " + MIN_FONT_SIZE );
         }
         // try
-        Font font;
-        try ( InputStream io = Files.newInputStream( path ) ) {
+        final Font font;
+        try ( final InputStream io = Files.newInputStream( path ) ) {
 
             font = Font.loadFont( io, size );
         } catch ( final IOException ioE ) {
@@ -244,25 +262,25 @@ public final class IOUtils {
      * @param si    standard unit
      * @return formatted file size
      */
-    public static String formatFileSize( long bytes, boolean si ) {
+    public static String formatFileSize( final long bytes, final boolean si ) {
         // no formatting
         if ( 0 >= bytes ) {
             return "0 B";
         }
-        int unit = si ? 1000 : 1024;
+        final int unit = si ? 1000 : 1024;
         // if no need to format
         if ( unit > bytes ) {
             return bytes + " B";
         }
 
-        String unitSymbol = si ? "kMGT" : "KMGT";
+        final String unitSymbol = si ? "kMGT" : "KMGT";
 
-        int exp = ( int ) ( Math.log( bytes ) / Math.log( unit ) );
+        final int exp = ( int ) ( Math.log( bytes ) / Math.log( unit ) );
 
-        double ri = bytes / Math.pow( unit, exp );
+        final double ri = bytes / Math.pow( unit, exp );
 
 
-        String pre = unitSymbol.charAt( exp - 1 ) + ( si ? "" : "i" );
+        final String pre = unitSymbol.charAt( exp - 1 ) + ( si ? "" : "i" );
         return String.format( "%.1f %sB", ri, pre );
     }
 
@@ -331,14 +349,14 @@ public final class IOUtils {
      */
     public static List<Path> streamZip( final Path zipRoot, final Path zipDirPath ) {
 
-        FileSystem zfs = ZipUtils.getZipFilesystem( zipRoot );
+        final FileSystem zfs = ZipUtils.getZipFilesystem( zipRoot );
         if ( null == zfs ) {
             return Collections.emptyList();
         }
         List<Path> pL;
         try {
             pL = Files.list( zfs.getPath( zipDirPath.toString() ) ).collect( toList() );
-        } catch ( IOException e ) {
+        } catch ( final IOException e ) {
 
             pL = Collections.emptyList();
         }
@@ -364,7 +382,7 @@ public final class IOUtils {
         }
 
         List<Path> pL;
-        try ( Stream<Path> ps = Files.list( p ) ) {
+        try ( final Stream<Path> ps = Files.list( p ) ) {
             pL = ps.collect( toList() );
         } catch ( final IOException ioE ) {
             LOG.warn( "IO E while streaming", ioE );
@@ -398,7 +416,7 @@ public final class IOUtils {
      * @throws NullPointerException {@code p} is {@code null}
      * @see #lookupDir(Path)
      */
-    public static List<Path> lookupDir( final Path p, Predicate<? super Path> pathPredicate ) {
+    public static List<Path> lookupDir( final Path p, final Predicate<? super Path> pathPredicate ) {
         Objects.requireNonNull( p );
 
         if ( !Files.isReadable( p ) ) {
@@ -410,13 +428,13 @@ public final class IOUtils {
             return Collections.emptyList();
         }
 
-        DirectoryStream.Filter<Path> filter;
+        final DirectoryStream.Filter<Path> filter;
         if ( null != pathPredicate ) {
             filter = pathPredicate::test;
         } else {
             filter = ACCEPT;
         }
-        List<Path> nodeL = new ArrayList<>();
+        final List<Path> nodeL = new ArrayList<>();
 
         try ( final DirectoryStream<Path> ds = Files.newDirectoryStream( p, filter ) ) {
 
@@ -440,7 +458,7 @@ public final class IOUtils {
      * @return list of subdirectories or empty list
      * @throws NullPointerException if {@code path} is null
      */
-    public static List<Path> getSubDirsOf( Path path ) {
+    public static List<Path> getSubDirsOf( final Path path ) {
 
         return lookupDir( path, PATH_ACCEPT_DIR );
     }
@@ -455,9 +473,9 @@ public final class IOUtils {
      */
     public static ImageType determineImageType( final Path path ) throws IOException {
         Objects.requireNonNull( path );
-        byte[] code = readBytes( path, 0, 50 );
+        final byte[] code = readBytes( path, 0, 50 );
         ImageType imageType = ImageType.UNKNOWN;
-        for ( FileSig fileSig : FileSig.values() ) {
+        for ( final FileSig fileSig : FileSig.values() ) {
 
             if ( fileSig.type() == FileSig.Type.IMAGE ) {
 
@@ -482,10 +500,10 @@ public final class IOUtils {
      */
     public static byte[] readBytes( final Path path, final int from, final int until ) throws IOException {
 
-        FileChannel fileChannel = FileChannel.open( path, StandardOpenOption.READ );
-        ByteBuffer bb = fileChannel.map( FileChannel.MapMode.READ_ONLY, from, until );
+        final FileChannel fileChannel = FileChannel.open( path, StandardOpenOption.READ );
+        final ByteBuffer bb = fileChannel.map( FileChannel.MapMode.READ_ONLY, from, until );
 
-        byte[] ret = bb.array();
+        final byte[] ret = bb.array();
         fileChannel.close();
 
         return ret;
@@ -495,10 +513,10 @@ public final class IOUtils {
      * @param bytes bytes to read
      * @return hexadecimal value
      */
-    public static String toHex( byte[] bytes ) {
-        StringBuilder stringBuilder = new StringBuilder();
+    public static String toHex( final byte[] bytes ) {
+        final StringBuilder stringBuilder = new StringBuilder();
 
-        for ( byte aByte : bytes ) {
+        for ( final byte aByte : bytes ) {
             stringBuilder.append( String.format( "%02x", aByte ) );
         }
 
@@ -511,12 +529,12 @@ public final class IOUtils {
      * @param path to read
      * @return file size in byte
      */
-    public static long getFilSizeSafe( Path path ) {
+    public static long getFilSizeSafe( final Path path ) {
         Objects.requireNonNull( path );
 
         try {
             return Files.size( path );
-        } catch ( IOException ioE ) {
+        } catch ( final IOException ioE ) {
 
             return FILE_NOT_READABLE;
         }
@@ -538,7 +556,7 @@ public final class IOUtils {
             throw new IOException( "Path '" + path + "' is not readable" );
         }
 
-        String[] temp = split( path.getFileName().toString() );
+        final String[] temp = split( path.getFileName().toString() );
         return 0 == temp.length ? UNKNOWN_PATH_NAME : temp[0];
     }
 
@@ -552,7 +570,7 @@ public final class IOUtils {
     public static String getPathPrefix( final String path ) {
         Objects.requireNonNull( path );
 
-        String[] temp = split( path );
+        final String[] temp = split( path );
         return 0 == temp.length ? UNKNOWN_PATH_NAME : temp[0];
     }
 
@@ -566,7 +584,7 @@ public final class IOUtils {
         String name = UNKNOWN_PATH_NAME;
         try {
             name = getPathPrefix( path );
-        } catch ( IOException ioE ) {
+        } catch ( final IOException ioE ) {
 
 
             //
@@ -594,7 +612,7 @@ public final class IOUtils {
             return UNKNOWN_PATH_SUFFIX;
         }
 
-        String[] temp = split( path.toString() );
+        final String[] temp = split( path.toString() );
         return 0 == temp.length ? UNKNOWN_PATH_SUFFIX : temp[1];
     }
 
@@ -608,7 +626,7 @@ public final class IOUtils {
         String suffix = UNKNOWN_PATH_SUFFIX;
         try {
             suffix = getPathSuffix( path );
-        } catch ( IOException ioE ) {
+        } catch ( final IOException ioE ) {
 
             // ignored
 
@@ -627,7 +645,7 @@ public final class IOUtils {
     public static Properties loadProperties( final Path pathToProp ) throws IOException {
         Objects.requireNonNull( pathToProp );
 
-        Properties prop = new Properties();
+        final Properties prop = new Properties();
 
         loadProperties( pathToProp, prop );
 
@@ -641,11 +659,11 @@ public final class IOUtils {
      * @param prop       properties
      * @throws IOException if {@code pathToProp} !readable
      */
-    public static void loadProperties( final Path pathToProp, Properties prop ) throws IOException {
+    public static void loadProperties( final Path pathToProp, final Properties prop ) throws IOException {
 
         Objects.requireNonNull( pathToProp );
 
-        try ( InputStream inStream = Files.newInputStream( pathToProp ) ) {
+        try ( final InputStream inStream = Files.newInputStream( pathToProp ) ) {
             prop.load( inStream );
         } catch ( final IOException ioE ) {
 
@@ -665,7 +683,7 @@ public final class IOUtils {
      * @return {@code false} if {@code path} seem to be no image or is null
      */
     public static boolean isImage( final Path path ) {
-        String su = getPathSuffixSafe( path );
+        final String su = getPathSuffixSafe( path );
 
         return null != path && IMG_TYPE_MAP.containsKey( su.toLowerCase() );
     }
@@ -677,26 +695,26 @@ public final class IOUtils {
      * @return {@code true} if path may be a font
      */
     public static boolean isFont( final Path path ) {
-        String su = getPathSuffixSafe( path );
+        final String su = getPathSuffixSafe( path );
 
         return null != path && TYPE_FON_MAP.containsKey( su.toLowerCase() );
     }
 
-    private static FileSystem createZipFileSys( Path zipPath ) throws URISyntaxException, IOException {
+    private static FileSystem createZipFileSys( final Path zipPath ) throws URISyntaxException, IOException {
         // create a jar
-        URI uri = new URI( "jar", zipPath.toUri().toString(), null );
+        final URI uri = new URI( "jar", zipPath.toUri().toString(), null );
 
-        FileSystem zipFS = FileSystems.newFileSystem( uri, ZIP_FS_MAP );
+        final FileSystem zipFS = FileSystems.newFileSystem( uri, ZIP_FS_MAP );
 
         return zipFS;
     }
 
-    private static String[] split( String fileName ) {
+    private static String[] split( final String fileName ) {
         assert null != fileName : "File name is null";
 
-        int lastDot = fileName.lastIndexOf( "." );
+        final int lastDot = fileName.lastIndexOf( "." );
 
-        String[] ret = new String[2];
+        final String[] ret = new String[2];
         ret[0] = lastDot > 0 ? fileName.substring( 0, lastDot ) : fileName;
         ret[1] = lastDot > 0 ? fileName.substring( lastDot ) : "";
 

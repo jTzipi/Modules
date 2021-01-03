@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Tim Langhammer
+ * Copyright (c) 2021 Tim Langhammer
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -47,27 +47,38 @@ public class PathCrawler implements Callable<Void> {
     private static final Logger LOG = LoggerFactory.getLogger( "" );
 
     private final Path root;
-    private final Predicate<Path> pred;
+    private final Predicate<? super Path> pred;
     private final BlockingQueue<Path> foundPathBQ;    // shared path
 
 
-    private PathCrawler( final Path dir, final Predicate<Path> predicate, final BlockingQueue<Path> sharedBQ ) {
+    private PathCrawler( final Path dir, final Predicate<? super Path> predicate, final BlockingQueue<Path> sharedBQ ) {
         this.root = dir;
         this.pred = predicate;
         this.foundPathBQ = sharedBQ;
     }
 
-    public static PathCrawler of( final Path rootDir, final Predicate<Path> pathPred, final BlockingQueue<Path> sharedBlockingQ ) throws IOException {
+    /**
+     * Create a path crawler.
+     *
+     * @param rootDir         root directory
+     * @param pathPred        path pattern
+     * @param sharedBlockingQ shared blocking queue
+     * @return path crawler
+     * @throws IllegalArgumentException if {@code pathPred} is null
+     * @throws NullPointerException     if {@code rootDir} or {@code sharedBlockingQ} are null
+     */
+    public static PathCrawler of( final Path rootDir, final Predicate<Path> pathPred, final BlockingQueue<Path> sharedBlockingQ ) {
         Objects.requireNonNull( rootDir );
         Objects.requireNonNull( sharedBlockingQ );
-
-        if(!Files.isReadable( rootDir )) {
-            throw new IOException( "Can not read dir '" + rootDir + "'" );
+        if ( null == pathPred ) {
+            throw new IllegalArgumentException( "You must provide a path predicate" );
         }
+
 
         return new PathCrawler( rootDir, pathPred, sharedBlockingQ );
     }
-    public Void call(  ) {
+
+    public Void call() {
 
         search( root ); // crawl
         foundPathBQ.add( __NULL__ ); // put null
@@ -76,31 +87,31 @@ public class PathCrawler implements Callable<Void> {
 
     private void search( final Path path ) {
 
-        if(!Files.isReadable( path )) {
+        if ( !Files.isReadable( path ) ) {
 
 
             return;
         }
-        try( DirectoryStream<Path> ds = Files.newDirectoryStream(path) ) {
+        try ( final DirectoryStream<Path> ds = Files.newDirectoryStream( path ) ) {
             final Iterator<Path> pit = ds.iterator();
 
-            while(pit.hasNext()) {
+            while ( pit.hasNext() ) {
 
 
-                Path pn = pit.next();
+                final Path pn = pit.next();
                 //System.out.println(pn);
-                if( Files.isDirectory( pn )) {
+                if ( Files.isDirectory( pn ) ) {
                     search( pn );
                 }
 
                 // found
-                if( pred.test( pn ) ) {
+                if ( pred.test( pn ) ) {
 
                     // put to bq
 
                     try {
                         foundPathBQ.put( pn );
-                    } catch ( InterruptedException iE ) {
+                    } catch ( final InterruptedException iE ) {
 
                         Thread.currentThread().interrupt();
                     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Tim Langhammer
+ * Copyright (c) 2021 Tim Langhammer
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -69,11 +69,11 @@ public class ZipPathNode implements IPathNode, Comparable<ZipPathNode> {
     /**
      * ZipPathNode main.
      *
-     * @param rootPath root path of zip
-     * @param relPath relative path to root
+     * @param rootPath       root path of zip
+     * @param relPath        relative path to root
      * @param parentPathNode parent
      */
-    ZipPathNode( Path rootPath, Path relPath, IPathNode parentPathNode ) {
+    ZipPathNode( final Path rootPath, final Path relPath, final IPathNode parentPathNode ) {
         this.zip = rootPath;
         this.relPath = relPath;
         this.parent = parentPathNode;
@@ -83,12 +83,12 @@ public class ZipPathNode implements IPathNode, Comparable<ZipPathNode> {
 
     public static ZipPathNode of( final Path path, final IPathNode parentNode ) {
         Objects.requireNonNull( path );
-        Path zipRoot;
-        Path relPath;
+        final Path zipRoot;
+        final Path relPath;
         // if paren is zip path too forward zip root
-        if( parentNode instanceof ZipPathNode ) {
+        if ( parentNode instanceof ZipPathNode ) {
 
-            ZipPathNode zipParent = (ZipPathNode)parentNode;
+            final ZipPathNode zipParent = ( ZipPathNode ) parentNode;
             zipRoot = zipParent.getZipRoot();
             relPath = path;
         } else {
@@ -100,7 +100,7 @@ public class ZipPathNode implements IPathNode, Comparable<ZipPathNode> {
 
 
         // create new instance
-        ZipPathNode zpn = new ZipPathNode( zipRoot, relPath, parentNode );
+        final ZipPathNode zpn = new ZipPathNode( zipRoot, relPath, parentNode );
         // init
         zpn.init( path, relPath );
         return zpn;
@@ -114,16 +114,17 @@ public class ZipPathNode implements IPathNode, Comparable<ZipPathNode> {
 
     /**
      * Init this node.
+     *
      * @param zipPath path to zip file
      * @param relPath relative path to this node
      */
-    private void init( Path zipPath, Path relPath ) {
+    private void init( final Path zipPath, final Path relPath ) {
 
 
         this.name = relPath.getFileName().toString();
         this.desc = "";
         try {
-            BasicFileAttributes bfa = ZipUtils.readZipAttributes( zipPath, relPath );
+            final BasicFileAttributes bfa = ZipUtils.readZipAttributes( zipPath, relPath );
             this.dir = bfa.isDirectory();
             this.leaf = !dir;
             this.length = bfa.size();
@@ -190,7 +191,7 @@ public class ZipPathNode implements IPathNode, Comparable<ZipPathNode> {
 
 
     @Override
-    public List<IPathNode> getSubnodes( Predicate<? super Path> predicate ) {
+    public List<IPathNode> getSubnodes( final Predicate<? super Path> predicate ) {
 
         if ( !subNodesCreated ) {
 
@@ -198,7 +199,7 @@ public class ZipPathNode implements IPathNode, Comparable<ZipPathNode> {
                     .stream()
                     .filter( predicate )
                     .sorted()
-                    .map( zipp -> ZipPathNode.of( zipp, ZipPathNode.this ) )
+                    .map( zipp -> of( zipp, ZipPathNode.this ) )
                     .collect( toList() );
             this.subNodesCreated = true;
     }
@@ -226,7 +227,7 @@ public class ZipPathNode implements IPathNode, Comparable<ZipPathNode> {
     }
 
     @Override
-    public int compareTo( ZipPathNode zipPathNode ) {
+    public int compareTo( final ZipPathNode zipPathNode ) {
         return 0; // TODO: do impl
     }
 

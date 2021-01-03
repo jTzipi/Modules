@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Tim Langhammer
+ * Copyright (c) 2021 Tim Langhammer
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -34,12 +34,12 @@ public class WatchDir {
     private final WatchService watcher;
     private final Map<WatchKey, Path> keys;
     private final boolean recursive;
-    private boolean trace = false;
+    private boolean trace;
 
     /**
      * Creates a WatchService and registers the given directory
      */
-    WatchDir( Path dir, boolean recursive ) throws IOException {
+    WatchDir( final Path dir, final boolean recursive ) throws IOException {
         this.watcher = FileSystems.getDefault().newWatchService();
         this.keys = new HashMap<>();
         this.recursive = recursive;
@@ -57,7 +57,7 @@ public class WatchDir {
     }
 
     @SuppressWarnings("unchecked")
-    static <T> WatchEvent<T> cast( WatchEvent<?> event ) {
+    static <T> WatchEvent<T> cast( final WatchEvent<?> event ) {
         return ( WatchEvent<T> ) event;
     }
 
@@ -66,7 +66,7 @@ public class WatchDir {
         System.exit( -1 );
     }
 
-    public static void main( String[] args ) throws IOException {
+    public static void main( final String[] args ) throws IOException {
         // parse arguments
         if ( args.length == 0 || args.length > 2 )
             usage();
@@ -80,17 +80,17 @@ public class WatchDir {
         }
 
         // register directory and process its events
-        Path dir = Paths.get( args[dirArg] );
+        final Path dir = Paths.get( args[dirArg] );
         new WatchDir( dir, recursive ).processEvents();
     }
 
     /**
      * Register the given directory with the WatchService
      */
-    private void register( Path dir ) throws IOException {
-        WatchKey key = dir.register( watcher, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY );
+    private void register( final Path dir ) throws IOException {
+        final WatchKey key = dir.register( watcher, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY );
         if ( trace ) {
-            Path prev = keys.get( key );
+            final Path prev = keys.get( key );
             if ( prev == null ) {
                 System.out.format( "register: %s\n", dir );
             } else {
@@ -110,7 +110,7 @@ public class WatchDir {
         // register directory and sub-directories
         Files.walkFileTree( start, new SimpleFileVisitor<>() {
             @Override
-            public FileVisitResult preVisitDirectory( Path dir, BasicFileAttributes attrs )
+            public FileVisitResult preVisitDirectory( final Path dir, final BasicFileAttributes attrs )
                     throws IOException {
                 register( dir );
                 return FileVisitResult.CONTINUE;
@@ -125,21 +125,21 @@ public class WatchDir {
         for ( ; ; ) {
 
             // wait for key to be signalled
-            WatchKey key;
+            final WatchKey key;
             try {
                 key = watcher.take();
-            } catch ( InterruptedException x ) {
+            } catch ( final InterruptedException x ) {
                 return;
             }
 
-            Path dir = keys.get( key );
+            final Path dir = keys.get( key );
             if ( dir == null ) {
                 System.err.println( "WatchKey not recognized!!" );
                 continue;
             }
 
-            for ( WatchEvent<?> event : key.pollEvents() ) {
-                WatchEvent.Kind<?> kind = event.kind();
+            for ( final WatchEvent<?> event : key.pollEvents() ) {
+                final WatchEvent.Kind<?> kind = event.kind();
 
                 // TBD - provide example of how OVERFLOW event is handled
                 if ( kind == OVERFLOW ) {
@@ -147,9 +147,9 @@ public class WatchDir {
                 }
 
                 // Context for directory entry event is the file name of entry
-                WatchEvent<Path> ev = cast( event );
-                Path name = ev.context();
-                Path child = dir.resolve( name );
+                final WatchEvent<Path> ev = cast( event );
+                final Path name = ev.context();
+                final Path child = dir.resolve( name );
 
                 // print out event
                 System.out.format( "%s: %s\n", event.kind().name(), child );
@@ -161,14 +161,14 @@ public class WatchDir {
                         if ( Files.isDirectory( child, NOFOLLOW_LINKS ) ) {
                             registerAll( child );
                         }
-                    } catch ( IOException x ) {
+                    } catch ( final IOException x ) {
                         // ignore to keep sample readbale
                     }
                 }
             }
 
             // reset key and remove from set if directory no longer accessible
-            boolean valid = key.reset();
+            final boolean valid = key.reset();
             if ( !valid ) {
                 keys.remove( key );
 

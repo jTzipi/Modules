@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Tim Langhammer
+ * Copyright (c) 2021 Tim Langhammer
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -20,8 +20,6 @@ package earth.eu.jtzipi.modules.node.path;
 import earth.eu.jtzipi.modules.io.IOUtils;
 import earth.eu.jtzipi.modules.io.OS;
 import earth.eu.jtzipi.modules.node.INode;
-
-
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
@@ -60,10 +58,10 @@ public final class RootPathNode implements IPathNode {
      * @throws IOException          if some error reading
      * @throws NullPointerException if {@code os} is null
      */
-    public static RootPathNode of( OS os ) throws IOException {
+    public static RootPathNode of( final OS os ) throws IOException {
         Objects.requireNonNull( os );
 
-        RootPathNode rpn = new RootPathNode();
+        final RootPathNode rpn = new RootPathNode();
 
         rpn.init( os );
 
@@ -71,9 +69,7 @@ public final class RootPathNode implements IPathNode {
     }
 
 
-    private void init( OS os ) throws IOException {
-
-
+    private void init( final OS os ) throws IOException {
         switch ( os ) {
             case WINDOWS:
                 LOG.info( "Detected Windows" );
@@ -85,41 +81,39 @@ public final class RootPathNode implements IPathNode {
                 initUnixmac();
                 break;
         }
-
-        rootName = System.getenv( "COMPUTERNAME" );
-        rootPath = Paths.get( "/" );
     }
 
 
     private void initUnixmac() {
 
-        Path root = Paths.get( "/" );
+        final Path root = Paths.get( "/" );
 
-        for ( Path subPath : IOUtils.lookupDir( root ) ) {
+        for ( final Path subPath : IOUtils.lookupDir( root ) ) {
 
-            boolean readable = Files.isReadable( subPath );
-            IPathNode node = readable ? RegularPathNode.of( subPath, this ) : NotReadablePathNode.of( subPath, this );
+            final boolean readable = Files.isReadable( subPath );
+            final IPathNode node = readable ? RegularPathNode.of( subPath, this ) : NotReadablePathNode.of( subPath, this );
             subNode.add( node );
         }
-
 
     }
 
     private void initWin() throws IOException {
 
-        FileSystem fs = FileSystems.getDefault();
+        final FileSystem fs = FileSystems.getDefault();
 
         if ( null == fs ) {
             throw new IOException( "No FileSytem!" );
         }
-        Iterable<Path> userRoot = fs.getRootDirectories();
+        final Iterable<Path> userRoot = fs.getRootDirectories();
 
         // add a all user root
-        for ( Path usPath : userRoot ) {
+        for ( final Path usPath : userRoot ) {
 
             subNode.add( RegularPathNode.of( usPath, this ) );
         }
 
+        rootName = System.getenv( "COMPUTERNAME" );
+        rootPath = Paths.get( "/" );
 
     }
 
@@ -170,7 +164,7 @@ public final class RootPathNode implements IPathNode {
     }
 
     @Override
-    public List<IPathNode> getSubnodes( Predicate<? super Path> predicate ) {
+    public List<IPathNode> getSubnodes( final Predicate<? super Path> predicate ) {
         return subNode;
     }
 
@@ -202,11 +196,11 @@ public final class RootPathNode implements IPathNode {
     }
 
     @Override
-    public boolean equals( Object o ) {
+    public boolean equals( final Object o ) {
         if ( this == o ) return true;
         if ( o == null || getClass() != o.getClass() ) return false;
 
-        RootPathNode that = ( RootPathNode ) o;
+        final RootPathNode that = ( RootPathNode ) o;
 
         if ( rootName != null ? !rootName.equals( that.rootName ) : that.rootName != null ) return false;
         return rootPath != null ? rootPath.equals( that.rootPath ) : that.rootPath == null;

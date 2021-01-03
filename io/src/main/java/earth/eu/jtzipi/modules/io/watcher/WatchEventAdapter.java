@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Tim Langhammer
+ * Copyright (c) 2021 Tim Langhammer
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -26,27 +26,25 @@ import java.nio.file.Path;
 public class WatchEventAdapter implements IWatchEventHandler {
 
 
-    public WatchEventAdapter() {
 
-    }
 
     @Override
-    public EventAction onOverflow( Path path, int cnt ) {
+    public EventAction onOverflow( final Path path, final int cnt ) {
         return EventAction.ADVANCE;
     }
 
     @Override
-    public EventAction onCreate( Path path, int cnt ) {
+    public EventAction onCreate( final Path path, final int cnt ) {
         return EventAction.ADVANCE;
     }
 
     @Override
-    public EventAction onModify( Path path, int cnt ) {
+    public EventAction onModify( final Path path, final int cnt ) {
         return EventAction.ADVANCE;
     }
 
     @Override
-    public EventAction onDelete( Path path, int cnt ) {
+    public EventAction onDelete( final Path path, final int cnt ) {
         return EventAction.ADVANCE;
     }
 }

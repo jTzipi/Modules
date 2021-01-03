@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Tim Langhammer
+ * Copyright (c) 2021 Tim Langhammer
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -25,12 +25,12 @@ import java.util.List;
 
 public class Test {
 
-    public static void main( String[] args ) {
+    public static void main( final String[] args ) {
 
-        IPathNode node = RegularPathNode.of( IOUtils.getHomeDir(), null );
+        final IPathNode node = RegularPathNode.of( IOUtils.getHomeDir(), null );
 
-        List<? extends IPathNode> l = node.getSubnodes( Files::isDirectory );
+        final List<? extends IPathNode> l = node.getSubnodes( Files::isDirectory );
 
 
-     }
+    }
 }

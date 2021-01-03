@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Tim Langhammer
+ * Copyright (c) 2021 Tim Langhammer
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -39,17 +39,17 @@ public final class Utils {
      * @return clamped value
      * @throws NullPointerException if {@code val}|{@code min}|{@code max} are null
      */
-    public static <T extends Number & Comparable<? super T>>  T clamp( T val, T min, T max) {
-        Objects.requireNonNull(val, "value is null");
+    public static <T extends Number & Comparable<? super T>> T clamp( final T val, final T min, final T max ) {
+        Objects.requireNonNull( val, "value is null" );
         Objects.requireNonNull( min, "min value is null" );
         Objects.requireNonNull( max, "max value is null" );
 
-        T ret;
+        final T ret;
 
-        if( max.compareTo( val ) < 0 ) {
+        if ( max.compareTo( val ) < 0 ) {
 
             ret = max;
-        } else if( min.compareTo( val ) > 0 ) {
+        } else if ( min.compareTo( val ) > 0 ) {
             ret = min;
         } else {
             ret = val;

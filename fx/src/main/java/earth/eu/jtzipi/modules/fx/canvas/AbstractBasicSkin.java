@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Tim Langhammer
+ * Copyright (c) 2021 Tim Langhammer
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -54,7 +54,7 @@ public abstract class AbstractBasicSkin<C extends Control> extends SkinBase<C> {
      *
      * @param c widget
      */
-    public AbstractBasicSkin( C c ) {
+    protected AbstractBasicSkin( C c ) {
         super( c );
         init();
         // Add change listener for width and update only if width changed

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Tim Langhammer
+ * Copyright (c) 2021 Tim Langhammer
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -47,19 +47,16 @@ import java.util.function.Predicate;
 public class FindPathTask implements Callable<List<Path>> {
 
 
-
-
     private static final Logger Log = LoggerFactory.getLogger( "FindPath" );
 
     //private long matches;
-    private Path path;      // root path
-    private List<Path> foundPathL;
-    private Predicate<Path> criteria;   // predicate
-
+    private final Path path;      // root path
+    private final List<Path> foundPathL;
+    private final Predicate<Path> criteria;   // predicate
 
 
     FindPathTask( final Path rootPath,
-                  final Predicate<Path> pathPredicate) {
+                  final Predicate<Path> pathPredicate ) {
 
         this.path = rootPath;
         this.foundPathL = new ArrayList<>();
@@ -71,25 +68,24 @@ public class FindPathTask implements Callable<List<Path>> {
     /**
      * Create FindPathTask.
      *
-     * @param root root dir
+     * @param root         root dir
      * @param pathCriteria path predicate (optional)
-     *
      * @return FindPathTask
      * @throws IOException if
      */
-    public static FindPathTask of( Path root, Predicate<Path> pathCriteria ) throws IOException {
-        Objects.requireNonNull(root, "root path is null");
+    public static FindPathTask of( final Path root, Predicate<Path> pathCriteria ) throws IOException {
+        Objects.requireNonNull( root, "root path is null" );
 
 
-        if( !Files.isReadable( root ) ) {
-            throw new IOException("Path[='"+root+"'] is not readable");
+        if ( !Files.isReadable( root ) ) {
+            throw new IOException( "Path[='" + root + "'] is not readable" );
         }
         // error
-        if( !Files.isDirectory( root )) {
-            throw new IllegalArgumentException( "Path[='"+root+"'] is not dir" );
+        if ( !Files.isDirectory( root ) ) {
+            throw new IllegalArgumentException( "Path[='" + root + "'] is not dir" );
         }
         // set default predicate
-        if( null == pathCriteria) {
+        if ( null == pathCriteria ) {
             pathCriteria = IOUtils.PATH_ACCEPT_ALL;
         }
 
@@ -110,27 +106,26 @@ public class FindPathTask implements Callable<List<Path>> {
     }
 
     private void search( final Path path ) {
-    // path not readable return
-            if(!Files.isReadable( path )) {
-                Log.warn( "Can not read dir '" + path + "'" );
+        // path not readable return
+        if ( !Files.isReadable( path ) ) {
+            Log.warn( "Can not read dir '" + path + "'" );
 
-                return;
-            }
+            return;
+        }
 
 
-            try( DirectoryStream<Path> ds = Files.newDirectoryStream(path) ) {
-            for( Path pn : ds ) {
-
+        try ( final DirectoryStream<Path> ds = Files.newDirectoryStream( path ) ) {
+            for ( final Path pn : ds ) {
 
 
                 //System.out.println(pn);
-                if( Files.isDirectory( pn )) {
+                if ( Files.isDirectory( pn ) ) {
                     search( pn );
                 }
 
-                if( criteria.test( pn ) ) {
+                if ( criteria.test( pn ) ) {
 
-        foundPathL.add( pn );
+                    foundPathL.add( pn );
 
                 }
             }

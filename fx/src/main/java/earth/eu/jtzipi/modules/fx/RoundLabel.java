@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Tim Langhammer
+ * Copyright (c) 2021 Tim Langhammer
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -44,19 +44,18 @@ public class RoundLabel extends Label {
     private static final double BORDER_STROKE_LEN = 1D;
     private static final double SIZE_PREF = 57D;
     private final SVGPath svgPath = new SVGPath();
-    private ObjectProperty<BorderStrokeStyle> fxFrameStrokeTypeProp = new SimpleObjectProperty<>();
-    private ObjectProperty<Color> fxFrameStrokeColorProp = new SimpleObjectProperty<>();
-    private DoubleProperty fxFrameStrokeWidthProp = new SimpleDoubleProperty(this, "FX_STROKE_WIDTH_PROP", BORDER_STROKE_LEN);
-    private DropShadow dropShadow = new DropShadow( 5D, Color.rgb( 122, 122, 246 ) );
-    private Color fill = Color.gray( 0.9D );
+    private final ObjectProperty<BorderStrokeStyle> fxFrameStrokeTypeProp = new SimpleObjectProperty<>();
+    private final ObjectProperty<Color> fxFrameStrokeColorProp = new SimpleObjectProperty<>();
+    private final DoubleProperty fxFrameStrokeWidthProp = new SimpleDoubleProperty( this, "FX_STROKE_WIDTH_PROP", BORDER_STROKE_LEN );
+    private final DropShadow dropShadow = new DropShadow( 5D, Color.rgb( 122, 122, 246 ) );
+    private final Color fill = Color.gray( 0.9D );
 
-    public RoundLabel(String text) {
-        super();
+    public RoundLabel( final String text ) {
 
         svgPath.setContent( SHAPE );
         setShape( svgPath );
         setText( text );
-        setTextFill( fill  );
+        setTextFill( fill );
         init();
     }
 
@@ -65,19 +64,19 @@ public class RoundLabel extends Label {
     private void init() {
 
 
-        BorderStroke bs = new BorderStroke( fill, BorderStrokeStyle.SOLID, null, new BorderWidths( fxFrameStrokeWidthProp.doubleValue() ) );
-        double SIZE_HALF = SIZE_PREF / 2D;
+        final BorderStroke bs = new BorderStroke( fill, BorderStrokeStyle.SOLID, null, new BorderWidths( fxFrameStrokeWidthProp.doubleValue() ) );
+        final double SIZE_HALF = SIZE_PREF / 2D;
 
-        Stop stop1 = new Stop( 1D, fill );
-        Stop stop3 = new Stop( 0D, Color.gray( 0.5D ) );
-        RadialGradient bgrad = new RadialGradient( 90D, 0.0D, SIZE_HALF, SIZE_HALF, SIZE_HALF, false, CycleMethod.NO_CYCLE, stop1, stop3 );
-        setBorder( new Border(bs));
+        final Stop stop1 = new Stop( 1D, fill );
+        final Stop stop3 = new Stop( 0D, Color.gray( 0.5D ) );
+        final RadialGradient bgrad = new RadialGradient( 90D, 0.0D, SIZE_HALF, SIZE_HALF, SIZE_HALF, false, CycleMethod.NO_CYCLE, stop1, stop3 );
+        setBorder( new Border( bs ) );
         setBackground( new Background( new BackgroundFill( bgrad, CornerRadii.EMPTY, Insets.EMPTY ) ) );
 
-        setPrefSize( SIZE_PREF,SIZE_PREF );
+        setPrefSize( SIZE_PREF, SIZE_PREF );
         setAlignment( Pos.CENTER );
 
-        setOnMouseEntered(  me -> setEffect( dropShadow ) );
+        setOnMouseEntered( me -> setEffect( dropShadow ) );
         setOnMouseExited( me -> setEffect( null ) );
     }
 }
