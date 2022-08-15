@@ -22,7 +22,7 @@
 
     <groupId>earth.eu.jtzipi.modules</groupId>
     <artifactId>modules</artifactId>
-    <version>0.5.1</version>
+    <version>0.5.3</version>
     <packaging>pom</packaging>
     <name>Modules</name>
     <description>Modules parent pom.</description>
@@ -55,15 +55,15 @@
         <maven.compiler.target>11</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!-- JUnit 5 -->
-        <junit.version>5.7.1</junit.version>
+        <junit.version>5.9.0</junit.version>
         <!-- Apache Common Condec -->
         <apccodec.version>1.15</apccodec.version>
         <!-- Slf4J -->
-        <slf4j.version>1.7.32</slf4j.version>
+        <slf4j.version>1.7.36</slf4j.version>
         <!-- JavaFX -->
         <fx.version>11.0.2</fx.version>
         <!-- Bouncy Castle -->
-        <bouncycastle.version>1.67</bouncycastle.version>
+        <bouncycastle.version>1.71</bouncycastle.version>
     </properties>
 
     <dependencyManagement>
@@ -129,12 +129,14 @@
                 <artifactId>javafx-media</artifactId>
                 <version>${fx.version}</version>
             </dependency>
-            <!-- Bouncy Castle -->
+
+            <!-- https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk18on -->
             <dependency>
                 <groupId>org.bouncycastle</groupId>
-                <artifactId>bcprov-jdk15on</artifactId>
+                <artifactId>bcprov-jdk18on</artifactId>
                 <version>${bouncycastle.version}</version>
             </dependency>
+
         </dependencies>
     </dependencyManagement>
 <build>

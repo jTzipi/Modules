@@ -23,7 +23,7 @@
     <parent>
         <groupId>earth.eu.jtzipi.modules</groupId>
         <artifactId>modules</artifactId>
-        <version>0.5.1</version>
+        <version>0.5.3</version>
     </parent>
 
 
@@ -52,7 +52,12 @@
             <version>${project.version}</version>
 
         </dependency>
+        <dependency>
+            <groupId>earth.eu.jtzipi.modules</groupId>
+            <artifactId>modules-node</artifactId>
+            <version>${project.version}</version>
 
+        </dependency>
 
     </dependencies>
     
