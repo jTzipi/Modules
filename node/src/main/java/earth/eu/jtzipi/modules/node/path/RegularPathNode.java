@@ -18,6 +18,7 @@ package earth.eu.jtzipi.modules.node.path;
 
 
 import earth.eu.jtzipi.modules.io.IOUtils;
+import earth.eu.jtzipi.modules.io.PathInfo;
 import earth.eu.jtzipi.modules.node.INode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +26,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
 import java.util.Collections;
 import java.util.List;
@@ -33,16 +33,16 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Default Path Node.
  * <p>
- *     Regular path node is a node which can be read by the jvm.
- *
+ * Regular path node is a node which can be read by the jvm.
  *
  * @author jTzipi
  */
-public class RegularPathNode implements IPathNode, Comparable<IPathNode> {
+public class RegularPathNode implements IPathNode {
 
     private static final Logger LOG = LoggerFactory.getLogger( "PathNode" );
 
@@ -92,19 +92,24 @@ public class RegularPathNode implements IPathNode, Comparable<IPathNode> {
     /**
      * Indicator for subnodes created
      */
-    boolean subNodesCreated;
-    /** sub nodes.*/
+    private boolean subNodesCreated;
+    /**
+     * sub nodes.
+     */
     private List<IPathNode> subNodeL;
-    /** Name .*/
-    String name;
+    /**
+     * Name .
+     */
+    private String name;
     /**
      * Description.
      */
-    String desc;
+    private String desc;
     /**
      * File Time (optional) .
      */
-    FileTime ftc;
+    private FileTime ftc;
+
 
     /**
      * PathNode main.
@@ -116,17 +121,20 @@ public class RegularPathNode implements IPathNode, Comparable<IPathNode> {
 
         this.parent = parentPathNode;
         this.path = filepath;
+        this.subNodesCreated = false;
     }
 
     /**
      * Create new path node.
-     * @param path path
+     *
+     * @param path       path
      * @param parentNode parent node (maybe null if root)
      * @return PathNode for path and parent
      * @throws NullPointerException if {@code path} is
      */
-    public static RegularPathNode of( final Path path, final IPathNode parentNode )  {
-        Objects.requireNonNull(path);
+    public static RegularPathNode of( final Path path, final IPathNode parentNode ) {
+
+        Objects.requireNonNull( path );
 
         final RegularPathNode pn = new RegularPathNode( path, parentNode );
 
@@ -136,41 +144,19 @@ public class RegularPathNode implements IPathNode, Comparable<IPathNode> {
         return pn;
     }
 
-    private void init( final Path path )  {
-        this.dir = Files.isDirectory( path );
-        try {
-            final BasicFileAttributes attrs = Files.readAttributes( path, BasicFileAttributes.class );
+    private void init( final Path gadi ) {
 
-            this.length = dir ? DIR_LENGTH : attrs.size();
+        this.dir = PathInfo.isDir( gadi );
+        this.readable = PathInfo.isReadable( gadi );
 
-            ftc = attrs.creationTime();
-
-        } catch ( final IOException e ) {
-
-            this.length = 0L;
-            ftc = FileTime.fromMillis( 0L );
-            LOG.warn( "Can't read file time '" + path + "'", e );
-        }
-        try {
-            this.type = Files.probeContentType( path );
-        } catch ( final IOException ioE ) {
-            this.type = "<Unknown>";
-        }
-
-
-        try {
-            this.hidden = Files.isHidden( path );
-        } catch ( final IOException e ) {
-
-            this.hidden = false;
-        }
-        this.readable = Files.isReadable(path);
-        this.subNodesCreated = false;
-        this.name = IOUtils.getPathDisplayName( path );
-        this.desc = IOUtils.getPathTypeDescription( path );
-        this.depth = path.getNameCount();
-        this.link = Files.isSymbolicLink( path );
-
+        this.name = PathInfo.fileSystemName( gadi );
+        this.type = PathInfo.fileSystemTypeDesc( gadi );
+        this.desc = PathInfo.fileSystemTypeDesc( gadi );
+        this.depth = gadi.getNameCount();
+        this.link = PathInfo.isLink( gadi );
+        this.hidden = PathInfo.isHidden( gadi );
+        this.length = PathInfo.getLength( gadi );
+        this.ftc = IOUtils.getFileCreationTime( gadi );
     }
 
     @Override
@@ -211,33 +197,14 @@ public class RegularPathNode implements IPathNode, Comparable<IPathNode> {
 
     @Override
     public String getType() {
+
         return type;
     }
 
     @Override
     public boolean isHidden() {
+
         return hidden;
-    }
-
-    @Override
-    public List<IPathNode> getSubnodes( final Predicate<? super Path> pp ) {
-        if ( !isDir() ) {
-            return Collections.emptyList();
-        }
-        Objects.requireNonNull( pp );
-        // if not created
-        if ( !isCreated() ) {
-
-
-            this.subNodeL = IOUtils.lookupDir( getValue(), pp )
-                    .stream()
-                    .sorted()
-                    .map( sp -> NodeProvider.create( sp, RegularPathNode.this ) )
-                    .collect( Collectors.toList() );
-            this.subNodesCreated = true;
-        }
-
-        return this.subNodeL;
     }
 
     /**
@@ -245,8 +212,46 @@ public class RegularPathNode implements IPathNode, Comparable<IPathNode> {
      *
      * @return {@code true} if sub nodes are created
      */
-    boolean isCreated() {
+    @Override
+    public boolean isCreatedSubNode() {
+
         return this.subNodesCreated;
+    }
+
+    @Override
+    public List<IPathNode> getSubnodes( final Predicate<? super Path> pp, final boolean streamDir ) {
+
+        if ( !isDir() ) {
+            LOG.debug( "Try to get subnodes of non dir" );
+            return Collections.emptyList();
+        }
+        Objects.requireNonNull( pp );
+        // if not created
+        if ( !isCreatedSubNode() ) {
+
+            if ( streamDir ) {
+
+                try ( final Stream<Path> stream = Files.list( getValue() ) ) {
+                    this.subNodeL = stream.filter( pp ).sorted().map( sp -> NodeProvider.create( sp, RegularPathNode.this ) ).collect( Collectors.toList() );
+                } catch ( final IOException ioE ) {
+                    LOG.warn( "Can not stream dir '" + getValue() + "'", ioE );
+                }
+            } else {
+
+                try {
+                    this.subNodeL = IOUtils.lookupDir( getValue(), pp )
+                            .stream()
+                            .sorted()
+                            .map( sp -> NodeProvider.create( sp, RegularPathNode.this ) )
+                            .collect( Collectors.toList() );
+                } catch ( final IOException ioE ) {
+                    LOG.warn( "Can not read dir '" + getValue() + "'", ioE );
+                }
+            }
+            this.subNodesCreated = true;
+        }
+
+        return this.subNodeL;
     }
 
     @Override
@@ -255,8 +260,9 @@ public class RegularPathNode implements IPathNode, Comparable<IPathNode> {
     }
 
     @Override
-    public boolean isLeaf() {
-        return (!isDir() && !isLink()) || !isReadable();
+    public Optional<FileTime> getCreated() {
+
+        return Optional.ofNullable( ftc );
     }
 
     @Override
@@ -265,15 +271,17 @@ public class RegularPathNode implements IPathNode, Comparable<IPathNode> {
     }
 
     @Override
-    public Optional<FileTime> getCreated() {
-        return Optional.of( ftc );
+    public boolean isLeaf() {
+
+        return ( !isDir() && !isLink() ) || !isReadable();
     }
 
     @Override
     public int hashCode() {
+
         int res = Objects.hashCode( getValue() );
-        res= 79 * res + Long.hashCode( getFileLength() );
-        res= 79 * res + Objects.hashCode( getDesc() );
+        res = 79 * res + Long.hashCode( getFileLength() );
+        res = 79 * res + Objects.hashCode( getDesc() );
         res = 79 * res + Objects.hashCode( getName() );
 
         return res;

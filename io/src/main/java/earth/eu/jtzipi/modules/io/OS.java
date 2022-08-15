@@ -18,6 +18,7 @@ package earth.eu.jtzipi.modules.io;
 
 /**
  * Operation System.
+ *
  */
 public enum OS {
 
@@ -63,7 +64,8 @@ public enum OS {
      * @return OS
      */
     public static OS getSystemOS() {
-        final String ostr = System.getProperty( "os.name" ).toLowerCase();
+
+        final String ostr = SystemInfo.getOSName().toLowerCase();
 
         final OS os;
         // Linux Unix

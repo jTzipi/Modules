@@ -16,7 +16,8 @@
 
 package earth.eu.jtzipi.modules.node.path;
 
-import earth.eu.jtzipi.modules.io.IOUtils;
+
+import earth.eu.jtzipi.modules.io.PathInfo;
 import earth.eu.jtzipi.modules.node.INode;
 
 import java.nio.file.Path;
@@ -28,20 +29,22 @@ import java.util.Optional;
 import java.util.function.Predicate;
 
 
-public final class NotReadablePathNode implements IPathNode, Comparable<IPathNode> {
+public final class NotReadablePathNode implements IPathNode {
 
     private final Path path;
     private final IPathNode parent;
 
     private String name;
     private String desc;
-
+    private boolean linked;
+    private boolean dir;
 
     /**
      * @param path       path
      * @param parentNode parent node
      */
     NotReadablePathNode( final Path path, final IPathNode parentNode ) {
+
         this.path = path;
         this.parent = parentNode;
     }
@@ -63,9 +66,10 @@ public final class NotReadablePathNode implements IPathNode, Comparable<IPathNod
 
     private void init( final Path path ) {
 
-        name = IOUtils.getPathDisplayName( path );
-        desc = IOUtils.getPathTypeDescription( path );
-
+        name = PathInfo.fileSystemName( path );
+        desc = PathInfo.fileSystemTypeDesc( path );
+        linked = PathInfo.isLink( path );
+        dir = PathInfo.isDir( path );
     }
 
     @Override
@@ -80,12 +84,14 @@ public final class NotReadablePathNode implements IPathNode, Comparable<IPathNod
 
     @Override
     public boolean isLink() {
-        return false;
+
+        return linked;
     }
 
     @Override
     public boolean isDir() {
-        return false;
+
+        return dir;
     }
 
     @Override
@@ -105,21 +111,31 @@ public final class NotReadablePathNode implements IPathNode, Comparable<IPathNod
 
     @Override
     public String getType() {
+
         return null;
     }
 
     @Override
     public boolean isHidden() {
+
         return false;
     }
 
     @Override
-    public List<IPathNode> getSubnodes( final Predicate<? super Path> predicate ) {
+    public boolean isCreatedSubNode() {
+
+        return true;
+    }
+
+    @Override
+    public List<IPathNode> getSubnodes( final Predicate<? super Path> predicate, final boolean streamProp ) {
+
         return Collections.emptyList();
     }
 
     @Override
     public Optional<FileTime> getCreated() {
+
         return Optional.empty();
     }
 

@@ -60,10 +60,6 @@
             <version>${project.version}</version>
 
         </dependency>
-        <dependency>
-            <groupId>earth.eu.jtzipi.modules</groupId>
-            <artifactId>modules-io</artifactId>
-            <version>0.5.1</version>
-        </dependency>
+
     </dependencies>
 </project>

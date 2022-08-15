@@ -17,6 +17,8 @@
 package earth.eu.jtzipi.modules.io;
 
 import earth.eu.jtzipi.modules.io.image.ImageType;
+import earth.eu.jtzipi.modules.utils.RegUs;
+import earth.eu.jtzipi.modules.utils.Utils;
 import javafx.scene.image.Image;
 import javafx.scene.text.Font;
 import org.slf4j.LoggerFactory;
@@ -29,6 +31,8 @@ import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.FileTime;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -46,16 +50,7 @@ public final class IOUtils {
      * Return value for file size of not readable file.
      */
     public static final long FILE_NOT_READABLE = -5L;
-    /**
-     * Accept hidden files.
-     */
-    public static final Predicate<Path> PATH_ACCEPT_HIDDEN = path -> {
-        try {
-            return Files.isHidden( path );
-        } catch ( IOException e ) {
-            return false;
-        }
-    };
+
     /**
      * File size for a file not readable.
      */
@@ -63,16 +58,10 @@ public final class IOUtils {
     /**
      * Minimal font size.
      */
-    public static final double MIN_FONT_SIZE = 7D;
+    public static final double FONT_MIN_SIZE = 7D;
+    public static final double IMAGE_MIN_SIZE = 12D;
+    public static final double IMAGE_MAX_SIZE = 999_999_999D;
 
-    /**
-     * Type image map.
-     */
-    public static final Map<String, String> IMG_TYPE_MAP = new HashMap<>();
-    /**
-     * Font map.
-     */
-    public static final Map<String, String> TYPE_FON_MAP = new HashMap<>();
     /**
      * Match all files path filer.
      */
@@ -110,12 +99,7 @@ public final class IOUtils {
 
     private static final org.slf4j.Logger LOG = LoggerFactory.getLogger( "IOUtils" );
 
-    // TODO: use MediaType
-    static {
-        IMG_TYPE_MAP.put( ".jpg", "JPEG Image" );
 
-
-    }
 
     private IOUtils() {
         throw new AssertionError();
@@ -133,9 +117,8 @@ public final class IOUtils {
         Objects.requireNonNull( path );
 
         try ( final InputStream ips = Files.newInputStream( path ) ) {
-            final Image img = new Image( ips );
 
-            return img;
+            return new Image( ips );
         } catch ( final IOException ioE ) {
             LOG.warn( "Can not read Pic '" + path + "' " );
             throw ioE;
@@ -154,6 +137,9 @@ public final class IOUtils {
      * @throws IOException fail
      */
     public static Image loadImage( final Path path, final double width, final double height, final boolean preserveAspectRatioProp, final boolean smoothProp ) throws IOException {
+
+        Utils.clamp( width, IMAGE_MIN_SIZE, IMAGE_MAX_SIZE );
+
         try ( final InputStream fis = Files.newInputStream( path ) ) {
             return new Image( fis, width, height, preserveAspectRatioProp, smoothProp );
         } catch ( final IOException ioE ) {
@@ -191,6 +177,7 @@ public final class IOUtils {
      */
     public static Optional<Image> loadImageSafe( final Path path ) {
 
+        Objects.requireNonNull( path );
         try {
             final Image img = loadImage( path );
             return Optional.of( img );
@@ -199,6 +186,7 @@ public final class IOUtils {
         }
 
     }
+
 
     /**
      * Load a JavaFX font from path.
@@ -210,14 +198,15 @@ public final class IOUtils {
      * @throws NullPointerException if {@code path} is null
      */
     public static Font loadFont( final Path path, final double size ) throws IOException {
+
         Objects.requireNonNull( path );
         // Error
         if ( !Files.isReadable( path ) ) {
             throw new IOException( "Path '" + path + "' is not readable" );
         }
         // Too small
-        if ( size < MIN_FONT_SIZE ) {
-            throw new IllegalArgumentException( "Font size < " + MIN_FONT_SIZE );
+        if ( size < FONT_MIN_SIZE ) {
+            throw new IllegalArgumentException( "Font size < " + FONT_MIN_SIZE );
         }
         // try
         final Font font;
@@ -242,9 +231,10 @@ public final class IOUtils {
      * @throws NullPointerException if {@code path} is null
      */
     public static Font loadFontSafe( final Path path, double size ) {
+
         Objects.requireNonNull( path );
-        if ( size < MIN_FONT_SIZE ) {
-            size = MIN_FONT_SIZE;
+        if ( size < FONT_MIN_SIZE ) {
+            size = FONT_MIN_SIZE;
         }
         Font font;
         try {
@@ -290,7 +280,8 @@ public final class IOUtils {
      * @return user home
      */
     public static Path getHomeDir() {
-        return Paths.get( System.getProperty( "user.home" ) );
+
+        return Paths.get( SystemInfo.getUserHome() );
     }
 
     /**
@@ -299,7 +290,8 @@ public final class IOUtils {
      * @return application dir
      */
     public static Path getProgramDir() {
-        return Paths.get( System.getProperty( "user.dir" ) );
+
+        return Paths.get( SystemInfo.getUserDir() );
     }
 
     /**
@@ -336,8 +328,70 @@ public final class IOUtils {
      * @return description
      */
     public static String getPathTypeDescription( final Path path ) {
+
         Objects.requireNonNull( path );
         return FSV.getSystemTypeDescription( path.toFile() );
+    }
+
+    /**
+     * Try to read file creation time.
+     *
+     * @param path path
+     * @return File Creation Time or null if not reaadable
+     * @throws NullPointerException if {@code path} is null
+     */
+    public static FileTime getFileCreationTime( final Path path ) {
+
+        Objects.requireNonNull( path );
+
+        try {
+            return basicFileAttributes( path ).creationTime();
+        } catch ( IOException e ) {
+            LOG.warn( "can not read file attributes '" + path + "'", e );
+
+            return null;
+        }
+
+    }
+
+    /**
+     * Try to read file modification time.
+     *
+     * @param path path
+     * @return
+     */
+    public static FileTime getFileModiTime( final Path path ) {
+
+        Objects.requireNonNull( path );
+
+        try {
+            return basicFileAttributes( path ).lastModifiedTime();
+        } catch ( IOException e ) {
+            LOG.warn( "can not read file attributes '" + path + "'", e );
+
+            return null;
+        }
+
+    }
+
+    /**
+     * Try to read file access time.
+     *
+     * @param path path
+     * @return
+     */
+    public static FileTime getFileAccTime( final Path path ) {
+
+        Objects.requireNonNull( path );
+
+        try {
+            return basicFileAttributes( path ).lastAccessTime();
+        } catch ( IOException e ) {
+            LOG.warn( "can not read file attributes '" + path + "'", e );
+
+            return null;
+        }
+
     }
 
     /**
@@ -368,7 +422,8 @@ public final class IOUtils {
      *
      * @param p path to dir
      * @return list of path's
-     * @throws NullPointerException if
+     * @throws NullPointerException     if {@code path} is null
+     * @throws IllegalArgumentException if {@code path} is not a dir
      */
     public static List<Path> streamDir( final Path p ) {
         Objects.requireNonNull( p, "Path must not null" );
@@ -400,15 +455,24 @@ public final class IOUtils {
      * @throws NullPointerException if {@code p} is null
      * @see #lookupDir(Path, Predicate)
      */
-    public static List<Path> lookupDir( final Path p ) {
+    public static List<Path> lookupDir( final Path p ) throws IOException {
+
         return lookupDir( p, null );
     }
+
 
     /**
      * Lookup path for sub path.
      * <p>
      * Path should be a directory to make sense.
-     * </p>
+     * <p>
+     * <p>
+     * Important:
+     * <p>
+     * <p>
+     * This method did not read symbolic links. Each directory with symbolic link
+     * will be treated as <u>not readable</u>.
+     * To follow symbolic links use {@link #lookupDirSymlink(Path)}
      *
      * @param p             path to lookup
      * @param pathPredicate filter
@@ -416,7 +480,8 @@ public final class IOUtils {
      * @throws NullPointerException {@code p} is {@code null}
      * @see #lookupDir(Path)
      */
-    public static List<Path> lookupDir( final Path p, final Predicate<? super Path> pathPredicate ) {
+    public static List<Path> lookupDir( final Path p, final Predicate<? super Path> pathPredicate ) throws IOException {
+
         Objects.requireNonNull( p );
 
         if ( !Files.isReadable( p ) ) {
@@ -434,6 +499,7 @@ public final class IOUtils {
         } else {
             filter = ACCEPT;
         }
+
         final List<Path> nodeL = new ArrayList<>();
 
         try ( final DirectoryStream<Path> ds = Files.newDirectoryStream( p, filter ) ) {
@@ -443,12 +509,40 @@ public final class IOUtils {
                 nodeL.add( path );
             }
 
-        } catch ( final IOException ioE ) {
-
-            LOG.warn( "Can not read", ioE );
         }
 
         return nodeL;
+    }
+
+    /**
+     * Return all path's contained in the dir symlinked by {@code path}.
+     *
+     * @param path symlinked dir
+     * @return path's contained in the linked dir or empty list if the link is not readable
+     * or if {@code path} is not a dir.
+     * If {@code path} is a normal dir we use {@link #lookupDir(Path)}.
+     * @throws NullPointerException if {@code path} is null
+     */
+    public static List<Path> lookupDirSymlink( final Path path ) throws IOException {
+
+        Objects.requireNonNull( path, "Path is null" );
+
+        // if no dir return empty
+        if ( !Files.isDirectory( path ) ) {
+            LOG.warn( "You try to read a non directory" );
+            return Collections.emptyList();
+        }
+        // if dir but not linked follow dir
+        if ( !Files.isSymbolicLink( path ) ) {
+            LOG.info( "Try to follow a non linked dir. We use lookupDir!" );
+            return lookupDir( path );
+        }
+        // try to follow link
+
+        final Path sym = Files.readSymbolicLink( path );
+        LOG.info( "Read symlink '" + sym + "'" );
+        return lookupDir( sym );
+
     }
 
     /**
@@ -458,7 +552,7 @@ public final class IOUtils {
      * @return list of subdirectories or empty list
      * @throws NullPointerException if {@code path} is null
      */
-    public static List<Path> getSubDirsOf( final Path path ) {
+    public static List<Path> getSubDirsOf( final Path path ) throws IOException {
 
         return lookupDir( path, PATH_ACCEPT_DIR );
     }
@@ -685,7 +779,7 @@ public final class IOUtils {
     public static boolean isImage( final Path path ) {
         final String su = getPathSuffixSafe( path );
 
-        return null != path && IMG_TYPE_MAP.containsKey( su.toLowerCase() );
+        return null != path && RegUs.IMAGE_RASTER_TYPE_PATTERN.asPredicate().test( su );
     }
 
     /**
@@ -697,22 +791,21 @@ public final class IOUtils {
     public static boolean isFont( final Path path ) {
         final String su = getPathSuffixSafe( path );
 
-        return null != path && TYPE_FON_MAP.containsKey( su.toLowerCase() );
+        return null != path && RegUs.FONT_TYPE_PATTERN.asPredicate().test( su );
     }
 
     private static FileSystem createZipFileSys( final Path zipPath ) throws URISyntaxException, IOException {
         // create a jar
         final URI uri = new URI( "jar", zipPath.toUri().toString(), null );
 
-        final FileSystem zipFS = FileSystems.newFileSystem( uri, ZIP_FS_MAP );
-
-        return zipFS;
+        return FileSystems.newFileSystem( uri, ZIP_FS_MAP );
     }
 
     private static String[] split( final String fileName ) {
+
         assert null != fileName : "File name is null";
 
-        final int lastDot = fileName.lastIndexOf( "." );
+        final int lastDot = fileName.lastIndexOf( '.' );
 
         final String[] ret = new String[2];
         ret[0] = lastDot > 0 ? fileName.substring( 0, lastDot ) : fileName;
@@ -721,4 +814,8 @@ public final class IOUtils {
         return ret;
     }
 
+    private static BasicFileAttributes basicFileAttributes( final Path path ) throws IOException {
+
+        return Files.readAttributes( path, BasicFileAttributes.class );
+    }
 }

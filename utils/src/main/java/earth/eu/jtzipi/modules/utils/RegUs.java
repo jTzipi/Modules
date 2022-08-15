@@ -57,18 +57,21 @@ public enum RegUs implements Supplier<Pattern> {
     /**
      * Video file.
      */
-    public static final Pattern MOVIE_TYPE_PATTERN = Pattern.compile( "^.*\\.(avi|mp4|mpg|ogg|flv)$" );
+    public static final Pattern MOVIE_TYPE_PATTERN = Pattern.compile( "^.*\\.(avi|mp4|mpg|mpeg|ogg|flv)$" );
     /**
      * Audio file.
      */
     public static final Pattern AUDIO_TYPE_PATTERN = Pattern.compile( "^.*\\.(mp3|ogg|flac|m4a|au|wav|aif)$" );
     public static final Pattern IMAGE_RASTER_TYPE_PATTERN = Pattern.compile( "^.*\\.(jpeg|jpg|png|tif|tiff|bmp|gif)$" );
+    /**
+     * Vector image file.
+     */
     public static final Pattern IMAGE_VECTOR_TYPE_PATTERN = Pattern.compile( "^.*\\.(svg)" );
-    public static final Pattern BIN_WINSYS_TYPE_PATTERN = Pattern.compile( "^.*\\.(sys|dll).$" );
-    public static final Pattern BIN_WINEXEC_PATTERN = Pattern.compile( "^.*\\.(bat|com|exe|msi).$" );
-    public static final Pattern BIN_MACTYPE_PATTERN = Pattern.compile( "(sys|dll).$" );
-    public static final Pattern BIN_LINUXSYS_TYPE_PATTERN = Pattern.compile( "^.*\\.(so|rc|rpm|bundle).$" );
-    public static final Pattern BIN_LINUXEXEC_TYPE_PATTERN = Pattern.compile( "^.*\\.(run|sh).$" );
+    public static final Pattern BIN_WIN_SYS_TYPE_PATTERN = Pattern.compile( "^.*\\.(sys|dll).$" );
+    public static final Pattern BIN_WIN_EXEC_PATTERN = Pattern.compile( "^.*\\.(bat|com|exe|msi).$" );
+    public static final Pattern BIN_MAC_TYPE_PATTERN = Pattern.compile( "(sys|dll).$" );
+    public static final Pattern BIN_LINUX_SYS_TYPE_PATTERN = Pattern.compile( "^.*\\.(so|rc|rpm|bundle).$" );
+    public static final Pattern BIN_LINUX_EXEC_TYPE_PATTERN = Pattern.compile( "^.*\\.(run|sh).$" );
     public static final Pattern BIN_ARC_TYPE_PATTERN = Pattern.compile( "^.*\\.(arj|zip|7z|gzip|bzip|tar|rar).$" );
     public static final Pattern TEXT_TYPE_PATTERN = Pattern.compile( "^.*\\.(txt|dat|rtf)$" );
     public static final Pattern MARKUP_TYPE_PATTERN = Pattern.compile( "^.*\\.(xml|fxml|md|yaml)$" );

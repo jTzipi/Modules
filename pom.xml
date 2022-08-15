@@ -55,13 +55,15 @@
         <maven.compiler.target>11</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!-- JUnit 5 -->
-        <junitversion>5.5.2</junitversion>
+        <junit.version>5.7.1</junit.version>
         <!-- Apache Common Condec -->
-        <apccodecversion>1.14</apccodecversion>
+        <apccodec.version>1.15</apccodec.version>
         <!-- Slf4J -->
-        <slf4jversion>1.7.28</slf4jversion>
+        <slf4j.version>1.7.32</slf4j.version>
         <!-- JavaFX -->
-        <fxversion>11.0.2</fxversion>
+        <fx.version>11.0.2</fx.version>
+        <!-- Bouncy Castle -->
+        <bouncycastle.version>1.67</bouncycastle.version>
     </properties>
 
     <dependencyManagement>
@@ -71,58 +73,68 @@
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
-                <version>${slf4jversion}</version>
+                <version>${slf4j.version}</version>
             </dependency>
             <!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-simple -->
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-simple</artifactId>
-                <version>${slf4jversion}</version>
+                <version>${slf4j.version}</version>
             </dependency>
             <!-- junit -->
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter-api</artifactId>
-                <version>${junitversion}</version>
+                <version>${junit.version}</version>
                 <scope>test</scope>
             </dependency>
 
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter</artifactId>
-                <version>${junitversion}</version>
+                <version>${junit.version}</version>
                 <scope>test</scope>
             </dependency>
             <!-- https://mvnrepository.com/artifact/commons-codec/commons-codec -->
             <dependency>
                 <groupId>commons-codec</groupId>
                 <artifactId>commons-codec</artifactId>
-                <version>${apccodecversion}</version>
+                <version>${apccodec.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.openjfx</groupId>
                 <artifactId>javafx-base</artifactId>
-                <version>${fxversion}</version>
+                <version>${fx.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.openjfx</groupId>
                 <artifactId>javafx-controls</artifactId>
-                <version>${fxversion}</version>
+                <version>${fx.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.openjfx</groupId>
                 <artifactId>javafx-graphics</artifactId>
-                <version>${fxversion}</version>
+                <version>${fx.version}</version>
             </dependency>
-
+            <!-- OpenJFX Swing -->
+            <dependency>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-swing</artifactId>
+                <version>${fx.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.openjfx</groupId>
                 <artifactId>javafx-media</artifactId>
-                <version>${fxversion}</version>
+                <version>${fx.version}</version>
             </dependency>
-
+            <!-- Bouncy Castle -->
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcprov-jdk15on</artifactId>
+                <version>${bouncycastle.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 <build>

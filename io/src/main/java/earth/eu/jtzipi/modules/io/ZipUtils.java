@@ -52,7 +52,7 @@ public final class ZipUtils {
 
         return zipMap.computeIfAbsent( pathToZip, p -> {
             try {
-                return FileSystems.newFileSystem( p, null );
+                return FileSystems.newFileSystem( p, ClassLoader.getPlatformClassLoader() );
             } catch ( final IOException ioe ) {
                 return null;
             }

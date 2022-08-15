@@ -35,20 +35,26 @@ import java.util.function.Predicate;
  */
 public interface INode<T> {
 
+    static INode<?> findParent( final INode<?> node, final INode<?> toFind ) {
+
+        if ( node.getValue().equals( toFind.getValue() ) ) {
+            return node;
+        }
+        return null == node.getParent()
+                ? null
+                : findParent( node.getParent(), toFind );
+    }
+
     /**
      * Parent node or null if root.
+     *
      * @return parent node
      */
     INode<T> getParent();
 
     /**
-     * Is this node a leaf.
-     * @return {@code true} if this node
-     */
-    boolean isLeaf();
-
-    /**
      * Value this node is holding.
+     *
      * @return nodes value or {@code null}
      */
     T getValue();
@@ -66,4 +72,11 @@ public interface INode<T> {
      * @return sub node
      */
     List<? extends INode<T>> getSubnodes( Predicate<? super T> predicate );
+
+    /**
+     * Is this node a leaf.
+     *
+     * @return {@code true} if this node is a leaf
+     */
+    boolean isLeaf();
 }

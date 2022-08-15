@@ -35,14 +35,16 @@ import java.util.function.Predicate;
  *
  * @author jTzipi
  */
-public interface IPathNode extends INode<Path> {
+public interface IPathNode extends INode<Path>, Comparable<IPathNode> {
 
 
     // Collator for compare name
 
     Collator COL = Collator.getInstance();
-    /** Default comparator. */
-    Comparator<IPathNode> COMP = Comparator.comparing(IPathNode::isDir).thenComparing( IPathNode::isReadable ).thenComparing( ( pn, pn2 ) -> COL.compare( pn.getName(), pn2.getName()  ) ).reversed();
+    /**
+     * Default comparator.
+     */
+    Comparator<IPathNode> COMP = Comparator.comparing( IPathNode::isDir ).thenComparing( ( pn, pn2 ) -> COL.compare( pn2.getName(), pn.getName() ) ).thenComparing( IPathNode::isReadable ).reversed();
     /**
      * Length of a directory.
      */
@@ -77,7 +79,7 @@ public interface IPathNode extends INode<Path> {
     Predicate<IPathNode> ACCEPT_DIR_VISIBLE_NO_LINK = ACCEPT_DIR_VISIBLE.and( pathNode -> !pathNode.isLink() );
 
     /**
-     *
+     * Accept files that are no link.
      */
     Predicate<IPathNode> ACCEPT_DIR_NOT_LINKED = ACCEPT_DIR.and( pathNode -> !pathNode.isLink() );
     /**
@@ -113,6 +115,8 @@ public interface IPathNode extends INode<Path> {
             node = ( IPathNode ) node.getParent();
             pathL.add( node );
         }
+
+
         return pathL;
     }
 
@@ -181,21 +185,43 @@ public interface IPathNode extends INode<Path> {
     boolean isHidden();
 
     /**
+     * Return status of sub node creation.
+     *
+     * @return {@code true} if this sub nodes are loaded
+     */
+    boolean isCreatedSubNode();
+
+    /**
      * List of sub nodes.
      *
      * @return list of path wrapping sub node
      */
+    @Override
     default List<IPathNode> getSubnodes() {
-        return getSubnodes( path -> true );
+
+        return getSubnodes( path -> true, false );
     }
 
     /**
      * List of sub nodes.
      *
      * @param predicate filter
+     * @return sub nodes filtered
+     */
+    @Override
+    default List<IPathNode> getSubnodes( final Predicate<? super Path> predicate ) {
+
+        return getSubnodes( predicate, false );
+    }
+
+    /**
+     * List of sub nodes.
+     *
+     * @param predicate     filter
+     * @param streamDirProp stream directory
      * @return list of path
      */
-    List<IPathNode> getSubnodes( Predicate<? super Path> predicate );
+    List<IPathNode> getSubnodes( Predicate<? super Path> predicate, boolean streamDirProp );
 
     /**
      * Return time of creation if readable.

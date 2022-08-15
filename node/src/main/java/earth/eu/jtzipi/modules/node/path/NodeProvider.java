@@ -18,7 +18,6 @@ package earth.eu.jtzipi.modules.node.path;
 
 import earth.eu.jtzipi.modules.io.IOUtils;
 
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
 
@@ -30,26 +29,28 @@ final class NodeProvider {
 
 
     public static IPathNode create( final Path path, final IPathNode parentPathNode ) {
+
         Objects.requireNonNull( path );
 
-        if ( !Files.isReadable( path ) ) {
-
-            return NotReadablePathNode.of( path, parentPathNode );
-        }
+//        if ( !Files.isReadable( path ) ) {
+//
+//            return NotReadablePathNode.of( path, parentPathNode );
+//        }
 
         final String sfx = IOUtils.getPathSuffixSafe( path );
 
         final IPathNode node;
 
 
+        switch ( sfx ) {
+            case "zip":
+                node = ZipPathNode.of( path, parentPathNode );
+                break;
+            default:
+                node = RegularPathNode.of( path, parentPathNode );
+        }
 
-            switch ( sfx ) {
-                case "zip":
-                    node = ZipPathNode.of( path, parentPathNode ); break;
-                default: node = RegularPathNode.of( path , parentPathNode );
-            }
-
-return node;
+        return node;
     }
 
 }

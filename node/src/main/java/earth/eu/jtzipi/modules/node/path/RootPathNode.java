@@ -25,10 +25,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.FileTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Predicate;
 
 /**
@@ -87,8 +84,17 @@ public final class RootPathNode implements IPathNode {
     private void initUnixmac() {
 
         final Path root = Paths.get( "/" );
+        List<Path> rootDir;
+//
+        try {
+            rootDir = IOUtils.lookupDir( root );
+        } catch ( final IOException ioE ) {
 
-        for ( final Path subPath : IOUtils.lookupDir( root ) ) {
+            LOG.warn( "Failed to read root node '/'", ioE );
+            rootDir = Collections.emptyList();
+        }
+
+        for ( final Path subPath : rootDir ) {
 
             final boolean readable = Files.isReadable( subPath );
             final IPathNode node = readable ? RegularPathNode.of( subPath, this ) : NotReadablePathNode.of( subPath, this );
@@ -107,11 +113,24 @@ public final class RootPathNode implements IPathNode {
         final Iterable<Path> userRoot = fs.getRootDirectories();
 
         // add a all user root
+        // for windows we get the disks known
+        // ATTENTION
+        // some disks may not be readable duo to USB not found
+        // so we need to add them as NotReadablePathNode
         for ( final Path usPath : userRoot ) {
-
-            subNode.add( RegularPathNode.of( usPath, this ) );
+            if ( Files.isReadable( usPath ) ) {
+                subNode.add( RegularPathNode.of( usPath, this ) );
+            } else {
+                subNode.add( NotReadablePathNode.of( usPath, this ) );
+            }
         }
 
+        // set home dir of user
+        subNode.add( RegularPathNode.of( IOUtils.getHomeDir(), this ) );
+
+        // TODO add network node
+
+        // set computer name
         rootName = System.getenv( "COMPUTERNAME" );
         rootPath = Paths.get( "/" );
 
@@ -155,41 +174,61 @@ public final class RootPathNode implements IPathNode {
 
     @Override
     public String getType() {
+
         return "root";
     }
 
     @Override
     public boolean isHidden() {
+
         return false;
     }
 
     @Override
-    public List<IPathNode> getSubnodes( final Predicate<? super Path> predicate ) {
+    public boolean isCreatedSubNode() {
+
+        return true;
+    }
+
+    @Override
+    public List<IPathNode> getSubnodes( final Predicate<? super Path> predicate, final boolean streamDirProp ) {
+
         return subNode;
     }
 
     @Override
     public Optional<FileTime> getCreated() {
+
         return Optional.empty();
     }
 
     @Override
     public INode<Path> getParent() {
+
         return null;
     }
 
     @Override
-    public boolean isLeaf() {
-        return false;
-    }
-
-    @Override
     public Path getValue() {
+
         return rootPath;
     }
 
     @Override
+    public boolean isLeaf() {
+
+        return false;
+    }
+
+    @Override
+    public int compareTo( final IPathNode pathNode ) {
+
+        return COMP.compare( this, pathNode );
+    }
+
+    @Override
     public int hashCode() {
+
         int result = rootName != null ? rootName.hashCode() : 0;
         result = 31 * result + ( rootPath != null ? rootPath.hashCode() : 0 );
         return result;
@@ -197,6 +236,7 @@ public final class RootPathNode implements IPathNode {
 
     @Override
     public boolean equals( final Object o ) {
+
         if ( this == o ) return true;
         if ( o == null || getClass() != o.getClass() ) return false;
 
@@ -206,4 +246,3 @@ public final class RootPathNode implements IPathNode {
         return rootPath != null ? rootPath.equals( that.rootPath ) : that.rootPath == null;
     }
 }
-

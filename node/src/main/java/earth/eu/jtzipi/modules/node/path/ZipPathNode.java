@@ -36,19 +36,24 @@ import static java.util.stream.Collectors.toList;
 /**
  * Zip Path Node.
  * <p>
- *
- *     Zip path node is a directory wrapper for a zip archive.
+ * <p>
+ * Zip path node is a directory wrapper for a zip archive.
  *
  * </p>
- *
  */
-public class ZipPathNode implements IPathNode, Comparable<ZipPathNode> {
+public class ZipPathNode implements IPathNode {
 
-    /** parent node. */
+    /**
+     * parent node.
+     */
     IPathNode parent;
-    /** relative path .*/
+    /**
+     * relative path .
+     */
     Path relPath;
-    /** Path to zip file. */
+    /**
+     * Path to zip file.
+     */
     Path zip;
 
     List<IPathNode> subNodeL;
@@ -186,14 +191,21 @@ public class ZipPathNode implements IPathNode, Comparable<ZipPathNode> {
 
     @Override
     public boolean isHidden() {
+
         return hidden;
+    }
+
+    @Override
+    public boolean isCreatedSubNode() {
+
+        return subNodesCreated;
     }
 
 
     @Override
-    public List<IPathNode> getSubnodes( final Predicate<? super Path> predicate ) {
+    public List<IPathNode> getSubnodes( final Predicate<? super Path> predicate, boolean streamProp ) {
 
-        if ( !subNodesCreated ) {
+        if ( !isCreatedSubNode() ) {
 
             this.subNodeL = IOUtils.streamZip( getZipRoot(), getValue() )
                     .stream()
@@ -202,7 +214,7 @@ public class ZipPathNode implements IPathNode, Comparable<ZipPathNode> {
                     .map( zipp -> of( zipp, ZipPathNode.this ) )
                     .collect( toList() );
             this.subNodesCreated = true;
-    }
+        }
         return subNodeL;
     }
 
@@ -223,13 +235,15 @@ public class ZipPathNode implements IPathNode, Comparable<ZipPathNode> {
 
     @Override
     public Path getValue() {
+
         return relPath;
     }
 
-    @Override
-    public int compareTo( final ZipPathNode zipPathNode ) {
-        return 0; // TODO: do impl
-    }
 
+    @Override
+    public int compareTo( final IPathNode pathNode ) {
+
+        return COMP.compare( this, pathNode );
+    }
 
 }

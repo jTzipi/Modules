@@ -24,7 +24,6 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Iterator;
 import java.util.Objects;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
@@ -67,7 +66,8 @@ public class PathCrawler implements Callable<Void> {
      * @throws IllegalArgumentException if {@code pathPred} is null
      * @throws NullPointerException     if {@code rootDir} or {@code sharedBlockingQ} are null
      */
-    public static PathCrawler of( final Path rootDir, final Predicate<Path> pathPred, final BlockingQueue<Path> sharedBlockingQ ) {
+    public static PathCrawler of( final Path rootDir, final Predicate<? super Path> pathPred, final BlockingQueue<Path> sharedBlockingQ ) {
+
         Objects.requireNonNull( rootDir );
         Objects.requireNonNull( sharedBlockingQ );
         if ( null == pathPred ) {
@@ -89,16 +89,13 @@ public class PathCrawler implements Callable<Void> {
 
         if ( !Files.isReadable( path ) ) {
 
-
             return;
         }
         try ( final DirectoryStream<Path> ds = Files.newDirectoryStream( path ) ) {
-            final Iterator<Path> pit = ds.iterator();
 
-            while ( pit.hasNext() ) {
+            for ( Path pn : ds ) {
 
 
-                final Path pn = pit.next();
                 //System.out.println(pn);
                 if ( Files.isDirectory( pn ) ) {
                     search( pn );

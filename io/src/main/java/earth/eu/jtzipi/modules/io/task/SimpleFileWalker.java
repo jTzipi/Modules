@@ -27,10 +27,11 @@ import java.util.function.Predicate;
 
 public class SimpleFileWalker implements FileVisitor<Path> {
 
-    private final BlockingQueue<Path> bq;
+    private final BlockingQueue<? super Path> bq;
     private Predicate<? super Path> pp = p -> true;
 
-    private SimpleFileWalker( final BlockingQueue<Path> bq ) {
+    private SimpleFileWalker( final BlockingQueue<? super Path> bq ) {
+
         this.bq = bq;
     }
 
