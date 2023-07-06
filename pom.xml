@@ -63,7 +63,7 @@
         <!-- JavaFX -->
         <fx.version>11.0.2</fx.version>
         <!-- Bouncy Castle -->
-        <bouncycastle.version>1.71</bouncycastle.version>
+        <bouncycastle.version>1.74</bouncycastle.version>
     </properties>
 
     <dependencyManagement>
